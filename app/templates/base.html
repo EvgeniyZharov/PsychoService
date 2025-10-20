@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Psycho Passport{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='content/img_logo.svg') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs" defer></script>
+</head>
+<body>
+    <header class="header h-16 fixed top-0 left-0 right-0 bg-white z-50 flex items-center justify-between px-4 md:px-6 shadow-md" x-data="{ mobileMenuOpen: false }">
+        <div class="logo text-xl font-bold">🧠 Psycho Passport</div>
+
+        <!-- Desktop Navigation -->
+        <nav class="hidden md:flex space-x-6">
+            <a href="{{ url_for('main.index') }}">Главная</a>
+            <a href="{{ url_for('courses.courses', course_id=1) }}">Сюжет</a>
+            <a href="{{ url_for('profile.following_profiles') }}">Рейтинг</a>
+            <a href="{{ url_for('tests.choose_theme') }}">Тесты</a>
+            {% if session.user %}
+                <a href="{{ url_for('profile.profile') }}">Профиль</a>
+            {% else %}
+                <a href="{{ url_for('auth.login') }}" class="font-semibold text-indigo-600 hover:underline">Войти</a>
+            {% endif %}
+        </nav>
+
+        <!-- Mobile Menu Button -->
+        <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden p-2">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path x-show="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                <path x-show="mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </button>
+
+        <!-- Mobile Navigation -->
+        <div x-show="mobileMenuOpen" @click.away="mobileMenuOpen = false"
+             class="md:hidden absolute top-16 left-0 right-0 bg-white shadow-lg py-4 px-6 space-y-4 transition-all duration-300 ease-in-out"
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 transform -translate-y-4"
+             x-transition:enter-end="opacity-100 transform translate-y-0"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100 transform translate-y-0"
+             x-transition:leave-end="opacity-0 transform -translate-y-4">
+            <a href="{{ url_for('main.index') }}" class="block py-2 hover:text-indigo-600">Главная</a>
+            <a href="{{ url_for('courses.courses', course_id=1) }}" class="block py-2 hover:text-indigo-600">Сюжет</a>
+            <a href="{{ url_for('profile.following_profiles') }}" class="block py-2 hover:text-indigo-600">Рейтинг</a>
+            <a href="{{ url_for('tests.choose_theme') }}" class="block py-2 hover:text-indigo-600">Тесты</a>
+            {% if session.user %}
+                <a href="{{ url_for('profile.profile') }}" class="block py-2 hover:text-indigo-600">Профиль</a>
+            {% else %}
+                <a href="{{ url_for('auth.login') }}" class="block py-2 font-semibold text-indigo-600 hover:underline">Войти</a>
+            {% endif %}
+        </div>
+    </header>
+
+    <main>
+        <div class="pt-20"></div>
+        {% block cont %}
+        {% endblock %}
+    </main>
+</body>
+</html>

@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% block title %}Профиль{% endblock %}
+
+{% block cont %}
+<section class="profile-container">
+    <div class="profile-card">
+        <!-- Аватар и имя -->
+        <div class="profile-header">
+            <img src="{{ url_for('static', filename=('content/'+user_profile.avatar if user_profile.avatar else 'content/base_avatar.jpg')) }}"
+                 alt="User" class="profile-avatar">
+            <div>
+                <h2>{{ user.name }}</h2>
+<!--                <p>Баллы: {{ user.points }}</p>-->
+                <p>Страйк-дней подряд: {{ user.streak_days }}</p>
+                <p class="personality-type">🧬 Тип личности: <strong>{{ user.personality_type }}</strong></p>
+                <p class="subscription-plan">💼 Тариф: <strong>{{ user.payment_plan|capitalize if user.payment_plan else 'не выбран' }}</strong></p>
+            </div>
+        </div>
+
+        <!-- Статистика -->
+        <div class="stats">
+            <div class="stat">
+                <h4>{{ user.tests_completed }}</h4>
+                <p>Пройдено тестов</p>
+            </div>
+            <div class="stat">
+                <h4>{{ user.courses_progress|length }}</h4>
+                <p>Активных курсов</p>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat">
+                <h4>{{ user.exp % 100 }}/100 </h4>
+                <p>Опыт</p>
+            </div>
+            <div class="stat">
+                <h4>{{ user.exp // 100 }}</h4>
+                <p>Уровень</p>
+            </div>
+        </div>
+        {% if user_characters %}
+        <!-- Маркированный список -->
+            <ul>
+                {% for elem in user_characters %}
+                    <li>Тест: {{ elem.test_title }} - Тип личности: {{ elem.character_title }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+<!--        &lt;!&ndash; Прогресс по курсам &ndash;&gt;-->
+<!--        <h3>📚 Прогресс по курсам:</h3>-->
+<!--        <ul class="course-list space-y-3">-->
+<!--            {% for course, progress in user.courses_progress.items() %}-->
+<!--            <li>-->
+<!--                <span class="font-medium">{{ course }}</span>-->
+<!--                <div class="w-full bg-gray-200 h-3 rounded-full overflow-hidden">-->
+<!--                    <div class="h-full bg-indigo-500" style="width: {{ progress }};"></div>-->
+<!--                </div>-->
+<!--                <span class="text-sm text-gray-500">{{ progress }}</span>-->
+<!--            </li>-->
+<!--            {% endfor %}-->
+<!--        </ul>-->
+
+        <!-- Качества -->
+<!--        <h3 class="mt-6">🌟 Ваши качества:</h3>-->
+<!--        <ul class="trait-list space-y-2">-->
+<!--            {% for trait, value in user.traits.items() %}-->
+<!--            <li class="flex items-center justify-between">-->
+<!--                <span>{{ trait|capitalize }}</span>-->
+<!--                <div class="w-3/5 bg-gray-200 h-2 rounded-full overflow-hidden mx-2">-->
+<!--                    <div class="h-full bg-green-500" style="width: {{ value }}%;"></div>-->
+<!--                </div>-->
+<!--                <span class="text-sm text-gray-500">{{ value }}%</span>-->
+<!--            </li>-->
+<!--            {% endfor %}-->
+<!--        </ul>-->
+
+        <!-- Цели -->
+        {% if user.goals %}
+        <h3 class="mt-6 text-xl font-semibold text-center mb-4">🎯 Цели развития</h3>
+        <ul class="goal-list space-y-3 text-gray-800 text-base list-none text-left max-w-md mx-auto">
+            {% for goal in user.goals %}
+            <li class="flex items-start gap-2">
+                <span class="text-indigo-500 text-lg mt-1">✔️</span>
+                <span>{{ goal }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        <!-- Пентаграмма (в будущем) -->
+<!--        <div class="mt-6">-->
+<!--            <h3 class="mb-2">📈 Профиль личности:</h3>-->
+<!--            <canvas id="radarChart" width="300" height="300"></canvas>-->
+<!--        </div>-->
+        {% if session.user.email == 'admin@gmail.com' %}
+        <a href="{{ url_for('editor.admin') }}"
+           class="bg-yellow-400 btn-secondary logout-btn mt-6 ">
+            🛠 Админ-панель
+        </a>
+
+        <a href="{{ url_for('editor.editor') }}"
+           class="bg-yellow-400 btn-secondary logout-btn mt-6 ">
+           🧰 Меню редактора
+        </a>
+      {% endif %}
+        <a href="{{ url_for('profile.edit_profile') }}" class="btn-secondary logout-btn mt-6">Настройки</a>
+        <a href="{{ url_for('auth.logout') }}" class="btn-primary logout-btn mt-6">Выйти</a>
+        <a href="{{ url_for('payment.process_payment') }}" class="btn-light logout-btn mt-6">Тарифы</a>
+    </div>
+
+
+</section>
+
+<!-- Подключение Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const radarData = {
+    labels: {{ user.traits.keys() | list | tojson }},
+    datasets: [{
+      label: 'Ваш профиль',
+      data: {{ user.traits.values() | list | tojson }},
+      fill: true,
+      backgroundColor: 'rgba(99, 102, 241, 0.2)',
+      borderColor: 'rgb(99, 102, 241)',
+      pointBackgroundColor: 'rgb(99, 102, 241)'
+    }]
+  };
+
+  new Chart(document.getElementById('radarChart'), {
+    type: 'radar',
+    data: radarData,
+    options: {
+      scales: {
+        r: {
+          angleLines: { display: false },
+          suggestedMin: 0,
+          suggestedMax: 100,
+          pointLabels: {
+          font: {
+            size: 18
+          },
+          color: '#374151'
+        }
+        }
+      }
+    }
+  });
+</script>
+{% endblock %}

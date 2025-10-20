@@ -1,0 +1,26 @@
+{% extends 'base_page.html' %}
+{% block title %}Результаты теста | MindGrow{% endblock %}
+
+{% block content %}
+<div class="pt-20 px-6 min-h-screen bg-gradient-to-br from-pink-100 to-indigo-100">
+  <div class="max-w-3xl mx-auto bg-white p-10 rounded-2xl shadow-lg text-center">
+    <h1 class="text-3xl font-bold text-indigo-700 mb-6">🎉 Тест завершён</h1>
+    <p class="text-gray-600 mb-8">Спасибо за прохождение теста по теме <strong>{{ theme_title }}</strong>!</p>
+    <p class="text-gray-600 mb-8">Твой психотип: <strong>{{ res }}</strong>!</p>
+
+    {% if answers %}
+      <ul class="text-left text-gray-800 mb-10 space-y-3">
+        {% for answer in answers %}
+          <li class="bg-indigo-100 px-4 py-2 rounded-lg">📝 {{ loop.index }}. {{ answer }}</li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="text-gray-500">Ответов пока нет.</p>
+    {% endif %}
+
+    <a href="{{ url_for('tests.choose_theme') }}" class="inline-block bg-indigo-500 text-white px-6 py-3 rounded-full hover:bg-indigo-600 transition">
+      ← К выбору темы
+    </a>
+  </div>
+</div>
+{% endblock %}

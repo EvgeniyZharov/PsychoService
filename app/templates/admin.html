@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}Админ-панель{% endblock %}
+
+{% block cont %}
+<div class="pt-20 px-6 max-w-6xl mx-auto">
+  <h1 class="text-3xl font-bold text-indigo-700 mb-8">👑 Админ-панель</h1>
+
+  <!-- Пользователи -->
+  <section class="mb-10">
+    <h2 class="text-xl font-semibold mb-4">👥 Зарегистрированные пользователи</h2>
+    <ul class="bg-white p-4 rounded-xl shadow space-y-2">
+      {% for user in users %}
+        <li><strong>{{ user.name }}</strong> — {{ user.email }}</li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <!-- Гостевые email -->
+  <section class="mb-10">
+    <h2 class="text-xl font-semibold mb-4">📩 Гостевые e-mail</h2>
+    <ul class="bg-white p-4 rounded-xl shadow space-y-2">
+      {% for guest in guest_emails %}
+        <li>{{ guest.email }}</li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <!-- Курсы -->
+  <section class="mb-10">
+    <h2 class="text-xl font-semibold mb-4">📘 Курсы</h2>
+    <table class="w-full bg-white rounded-xl shadow text-sm">
+      <thead>
+        <tr class="bg-indigo-100 text-left">
+          <th class="p-2">ID</th>
+          <th class="p-2">Название</th>
+          <th class="p-2">Автор</th>
+          <th class="p-2">Доступен</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for course in courses %}
+        <tr class="border-t">
+          <td class="p-2">{{ course.id }}</td>
+          <td class="p-2">{{ course.title }}</td>
+          <td class="p-2">{{ course.author }}</td>
+          <td class="p-2">{{ '✅' if course.available else '❌' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Тесты -->
+  <section class="mb-10">
+    <h2 class="text-xl font-semibold mb-4">🧪 Тесты</h2>
+    <ul class="bg-white p-4 rounded-xl shadow space-y-2">
+      {% for test in tests %}
+        <li>{{ test.id }} — {{ test.title }} ({{ 'доступен' if test.available else 'скрыт' }})</li>
+      {% endfor %}
+    </ul>
+  </section>
+
+</div>
+{% endblock %}

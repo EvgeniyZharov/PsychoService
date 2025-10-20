@@ -1,0 +1,67 @@
+{% extends 'base_page.html' %}
+{% block title %}Глава {{ course_id }} | MindGrow{% endblock %}
+
+{% block content %}
+<div class="p-6 bg-gradient-to-br from-pink-100 to-indigo-100 min-h-screen" x-data="{ open: false, modalTitle: '', modalDesc: '', modalLesson: '' }">
+  <div class="mb-6">
+<!--    <a href="{{ url_for('courses.courses', course_id=1) }}" class="inline-block bg-indigo-500 text-white px-4 py-2 rounded-full hover:bg-indigo-600 transition">-->
+<!--      ← Вернуться к главам-->
+<!--    </a>-->
+  </div>
+  <h1 class="text-4xl font-bold text-center mb-10">18 типов характера</h1>
+
+  <!-- Граф уровней -->
+  <div class="space-y-12">
+      {% for step, levels_in_step in steps.items()|sort %}
+        {% for level, lessons_in_level in levels_in_step.items()|sort %}
+          <div class="flex flex-row flex-wrap justify-center gap-6">
+            {% for lesson in lessons_in_level %}
+              <div
+                class="w-28 h-28 rounded-full flex items-center justify-center text-white text-center text-sm font-semibold shadow-md cursor-pointer
+                     transition-transform duration-200 ease-in-out {{ lesson.color }}  active:scale-95 ring ring-green-300 ring-offset-2"
+              @click="open = {{ lesson.open }}; modalTitle = '{{ lesson.title }}'; modalDesc = '{{ lesson.description }}'; modalLesson = '{{ lesson.id }}';">
+              {{ lesson.title }}
+              </div>
+            {% endfor %}
+          </div>
+        {% endfor %}
+      {% endfor %}
+    </div>
+
+  <!-- Модальное окно -->
+  <div
+    class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50"
+    x-show="open"
+    x-transition
+    @click.away="open = false"
+  >
+    <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl">
+      <h2 class="text-xl font-bold mb-2" x-text="modalTitle"></h2>
+      <p class="text-gray-700" x-text="modalDesc"></p>
+
+      <button class="mt-4 bg-indigo-500 text-white px-4 py-2 rounded-full" @click="open = false">Закрыть</button>
+      <button class="mt-4 bg-indigo-500 text-white px-4 py-2 rounded-full" @click="window.location.href='/lesson/' + modalLesson + '/-1'">Открыть</button>
+    </div>
+  </div>
+</div>
+{% if show_email_prompt %}
+    <div id="emailModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-xl p-8 w-full max-w-md relative">
+            <!-- Кнопка закрытия -->
+            <button onclick="window.history.back()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl leading-none">
+                &times;
+            </button>
+
+            <h2 class="text-2xl font-bold mb-4 text-indigo-700">📩 Получи доступ к первому курсу</h2>
+            <p class="text-gray-600 mb-4">Введи свой email, и мы будем присылать тебе персональные рекомендации.</p>
+            <form method="POST" action="{{ url_for('courses.submit_email') }}" class="space-y-4">
+                <input type="email" name="email" placeholder="Твой email" required
+                       class="w-full border border-gray-300 rounded px-4 py-2">
+                <button class="w-full bg-indigo-500 text-white py-2 rounded hover:bg-indigo-600 transition">
+                    Получить доступ
+                </button>
+            </form>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Главная{% endblock %}
+
+{% block cont %}
+<style>
+    .hero {
+    text-align: center;
+    padding-top: 20vh;
+}
+
+.hero h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.hero .description {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+}
+
+@media (max-width: 768px) {
+
+    .hero {
+        padding-top: 20vh;
+    }
+
+    .hero h1 {
+        font-size: 2rem;
+    }
+
+    .hero .description {
+        font-size: 1rem;
+    }
+}
+</style>
+<section class="hero">
+    <h1>Развивайся психологически<br>с интересом и пользой</h1>
+    <p class="description">Изучай психологию, проходи тесты, читай истории и прокачивай себя каждый день.</p>
+    <a href="{{ url_for('courses.courses', course_id=1) }}" class="btn-secondary">🚀 Начать</a>
+</section>
+{% endblock %}

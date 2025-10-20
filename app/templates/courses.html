@@ -1,0 +1,48 @@
+{% extends 'base_page.html' %}
+{% block title %}Курсы{% endblock %}
+
+{% block content %}
+<section class="course-list">
+    <h2>🧠 Главы курса «Психология личности»</h2>
+
+    {% for course in courses %}
+        <div class="course-block {% if not course.available %}opacity-40 pointer-events-none select-none{% endif %}">
+            <img src="{{ url_for('static', filename='icons/chapter1.svg') }}" alt="icon">
+            <div>
+                <h4>{{ course.title }}</h4>
+                <p class="progress">📘 {{ course.description }}</p>
+<!--                <p class="text-sm text-gray-500">Автор: {{ course.author }}</p>-->
+
+
+                <p class="text-sm text-gray-500">Развивает: {{ course.traits | join(', ') }}</p>
+
+                {% if course.available %}
+                    <a href="{{ url_for('courses.course', course_id=course.id) }}" class="course-link">Перейти →</a>
+                {% else %}
+                    <span class="text-sm text-gray-400">Курс откроется после прохождения других</span>
+                {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+</section>
+{% if show_email_prompt %}
+    <div id="emailModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-xl p-8 w-full max-w-md relative">
+            <!-- Кнопка закрытия -->
+            <button onclick="window.history.back()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl leading-none">
+                &times;
+            </button>
+
+            <h2 class="text-2xl font-bold mb-4 text-indigo-700">📩 Получи доступ к первому курсу</h2>
+            <p class="text-gray-600 mb-4">Введи свой email, и мы будем присылать тебе персональные рекомендации.</p>
+            <form method="POST" action="{{ url_for('courses.submit_email') }}" class="space-y-4">
+                <input type="email" name="email" placeholder="Твой email" required
+                       class="w-full border border-gray-300 rounded px-4 py-2">
+                <button class="w-full bg-indigo-500 text-white py-2 rounded hover:bg-indigo-600 transition">
+                    Получить доступ
+                </button>
+            </form>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

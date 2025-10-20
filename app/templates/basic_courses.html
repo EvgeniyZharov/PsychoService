@@ -1,0 +1,49 @@
+{% extends 'base_page.html' %}
+{% block title %}Базовые курсы | MindGrow{% endblock %}
+
+{% block content %}
+<div class="pt-20 -mt-5 px-6 min-h-screen bg-gradient-to-br from-green-100 to-blue-100">
+    <div class="max-w-5xl mx-auto">
+        <h1 class="text-3xl font-bold text-indigo-700 mb-8">📚 Авторские курсы</h1>
+
+        <div class="space-y-6">
+            {% for course in courses %}
+            <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 {% if not course.available %}opacity-40 pointer-events-none select-none{% endif %}">
+                <div>
+                    <h2 class="text-xl font-semibold text-indigo-700">{{ course.title }}</h2>
+                    <p class="text-gray-600 mt-1 mb-2">{{ course.description }}</p>
+                    <p class="text-sm text-gray-500">👤 Автор: <span class="font-medium">{{ course.author }}</span></p>
+                    <p class="text-sm text-gray-500">🌱 Качества:
+                        <span class="font-medium">{{ course.traits | join(', ') }}</span>
+                    </p>
+                </div>
+                <a href="{{ url_for('courses.lesson', lesson_id=course.first_lesson_id) }}"
+                   class="mt-4 md:mt-0 inline-block bg-indigo-500 text-white px-4 py-2 rounded-full hover:bg-indigo-600 transition">
+                    Перейти к курсу →
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% if show_email_prompt %}
+    <div id="emailModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-xl p-8 w-full max-w-md relative">
+            <!-- Кнопка закрытия -->
+            <button onclick="window.history.back()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl leading-none">
+                &times;
+            </button>
+
+            <h2 class="text-2xl font-bold mb-4 text-indigo-700">📩 Получи доступ к первому курсу</h2>
+            <p class="text-gray-600 mb-4">Введи свой email, и мы будем присылать тебе персональные рекомендации.</p>
+            <form method="POST" action="{{ url_for('courses.submit_email') }}" class="space-y-4">
+                <input type="email" name="email" placeholder="Твой email" required
+                       class="w-full border border-gray-300 rounded px-4 py-2">
+                <button class="w-full bg-indigo-500 text-white py-2 rounded hover:bg-indigo-600 transition">
+                    Получить доступ
+                </button>
+            </form>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

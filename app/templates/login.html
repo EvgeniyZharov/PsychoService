@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Вход{% endblock %}
+
+{% block cont %}
+<div class="pt-24 max-w-md mx-auto">
+  <h2 class="text-2xl font-bold mb-4">🔐 Вход в MindGrow</h2>
+
+  {% if error %}
+    <p class="text-red-500">{{ error }}</p>
+  {% endif %}
+
+  <form method="POST" class="space-y-4">
+    <input type="email" name="email" placeholder="Email"
+       value="{{ saved_email if saved_email else '' }}"
+       class="w-full p-2 border rounded" required>
+    <input type="password" name="password" placeholder="Пароль" class="w-full p-2 border rounded" required>
+
+    <div class="flex items-center">
+      <input type="checkbox" name="remember_me" id="remember_me" class="mr-2">
+      <label for="remember_me" class="text-sm text-gray-600">Запомнить меня</label>
+    </div>
+
+    <button class="w-full bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600">Войти</button>
+
+    <div class="flex justify-between text-sm mt-2">
+      <a href="{{ url_for('auth.forgot_password') }}" class="text-indigo-500 hover:underline">Забыли пароль?</a>
+      <a href="{{ url_for('auth.register') }}" class="text-indigo-500 hover:underline">Регистрация</a>
+    </div>
+  </form>
+
+  <p class="text-xs text-gray-500 mt-6 text-center">
+    Создавая аккаунт, вы соглашаетесь с <a href="{{ url_for('main.terms') }}" class="text-indigo-500 hover:underline">Условиями использования</a>.
+  </p>
+</div>
+{% endblock %}

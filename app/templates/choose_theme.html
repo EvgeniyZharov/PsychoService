@@ -1,0 +1,42 @@
+{% extends 'base_page.html' %}
+{% block title %}Выбор темы теста | MindGrow{% endblock %}
+
+{% block content %}
+<div class="pt-20 px-6 bg-gradient-to-br from-pink-100 to-indigo-100 min-h-screen">
+  <div class="max-w-4xl mx-auto bg-white p-8 rounded-2xl shadow-md">
+    <h1 class="text-3xl font-bold mb-8 text-indigo-700 text-center">🧠 Выбери тему теста</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {% for theme in themes %}
+      <form method="get" action="{{ url_for('tests.start_test', theme_id=theme.id) }}">
+        <button class="w-full bg-indigo-100 hover:bg-indigo-200 text-indigo-800 font-semibold p-6 rounded-xl text-left shadow-md transition">
+          <h2 class="text-xl mb-2">{{ theme.title }}</h2>
+          <p class="text-sm text-gray-600">{{ theme.description }}</p>
+        </button>
+      </form>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{% if show_email_prompt %}
+    <div id="emailModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-xl p-8 w-full max-w-md relative">
+            <!-- Кнопка закрытия -->
+            <button onclick="window.history.back()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl leading-none">
+                &times;
+            </button>
+
+            <h2 class="text-2xl font-bold mb-4 text-indigo-700">📩 Получи доступ к первому курсу</h2>
+            <p class="text-gray-600 mb-4">Введи свой email, и мы будем присылать тебе персональные рекомендации.</p>
+            <form method="POST" action="{{ url_for('courses.submit_email') }}" class="space-y-4">
+                <input type="email" name="email" placeholder="Твой email" required
+                       class="w-full border border-gray-300 rounded px-4 py-2">
+                <button class="w-full bg-indigo-500 text-white py-2 rounded hover:bg-indigo-600 transition">
+                    Получить доступ
+                </button>
+            </form>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

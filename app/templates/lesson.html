@@ -1,0 +1,72 @@
+{% extends 'base_page.html' %}
+{% block title %}{{ lesson.title }} | MindGrow{% endblock %}
+
+{% block content %}
+<div class="pt-20 px-6 min-h-screen bg-white text-gray-800">
+  <!-- Назад к главе -->
+
+
+  <h1 class="text-3xl font-bold mb-4">{{ lesson.title }}</h1>
+  <div class="space-x-2 items-center justify-center mb-6">
+  <div class="space-y-4">
+    {% for l in lesson_pages %}
+      <div class="p-6 bg-white w-full">
+        {% if l.title %}
+          <h2 class="text-xl font-semibold mb-2">{{ l.title }}</h2>
+        {% endif %}
+
+        {% if l.type == 'txt' %}
+          <p class="text-gray-700 whitespace-pre-line">{{ l.content }}</p>
+
+        {% elif l.type == 'image' %}
+          <img src="{{ url_for('static', filename='uploads/course_' ~ course_id ~ '/' ~ l.content) }}"
+               alt="{{ l.title }}" class="rounded w-full max-h-96 object-contain">
+
+        {% elif l.type == 'video' %}
+           <div class="w-full mt-6">
+            <div class="relative" style="padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 1rem; box-shadow: 0 0 20px rgba(0,0,0,0.1);">
+              <iframe
+                src="https://rutube.ru/play/embed/{{ l.content | replace('https://rutube.ru/video/', '') }}"
+                frameborder="0"
+                allowfullscreen
+                class="absolute top-0 left-0 w-full h-full"
+              ></iframe>
+            </div>
+          </div>
+
+        {% else %}
+          <p class="text-red-500">Неизвестный тип: {{ l.type }}</p>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+  <!-- Навигация между уроками -->
+  <div class="flex justify-between items-center mt-12">
+
+  {% if prev_lesson %}
+  <a href="{{ url_for('courses.lesson', lesson_id=prev_lesson.id, course_id=course_id) }}"
+     class="text-indigo-500 hover:underline font-semibold">
+    {{ prev_lesson.title }} ← Вернуться к предыдущему уроку
+  </a>
+  {% else %}
+  <a href="{{ url_for('courses.courses', course_id=1) }}"
+     class="bg-indigo-500 text-white px-4 py-2 rounded-full hover:bg-indigo-600 transition">
+    ← Вернуться к курсам
+  </a>
+  {% endif %}
+  {% if next_lesson %}
+    <a href="{{ url_for('courses.lesson', lesson_id=next_lesson.id, course_id=course_id) }}"
+       class="text-indigo-500 hover:underline font-semibold">
+      {{ next_lesson.title }} Перейти к следующему уроку →
+    </a>
+  {% else %}
+    <a href="{{ url_for('courses.end_lesson', course_id=course_id) }}"
+       class="bg-indigo-500 text-white px-4 py-2 rounded-full hover:bg-indigo-600 transition">
+      Закончить урок
+    </a>
+  {% endif %}
+</div>
+</div>
+{% endblock %}

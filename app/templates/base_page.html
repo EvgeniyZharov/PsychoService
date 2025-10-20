@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% block title %}{% endblock %}
+
+{% block cont %}
+    <aside class="hidden lg:flex fixed top-16 left-0 h-[calc(100vh-4rem)] w-96 bg-gradient-to-br from-purple-100 to-pink-100 p-6 z-40 flex flex-col justify-between shadow-xl rounded-tr-3xl rounded-br-3xl border-r border-purple-200">
+  <!-- Верх: профиль -->
+  <div class="flex flex-col items-center text-center overflow-hidden pr-2">
+    <div class="bg-white/60 backdrop-blur-md text-gray-900 rounded-2xl p-5 w-full shadow-md transition-all">
+    {% if session.user %}
+      <div class="flex flex-col items-center mb-4">
+        <img src="{{ url_for('static', filename=('content/'+user_profile.avatar if user_profile.avatar else 'content/base_avatar.jpg')) }}"
+             alt="avatar"
+             class="w-24 h-24 rounded-full border-4 border-purple-300 shadow">
+        <h3 class="text-xl font-semibold mt-2">{{ user_profile.name }}</h3>
+        <p class="text-sm text-gray-600">{{ user_profile.email }}</p>
+      </div>
+
+      <div class="text-sm space-y-3 mb-4 text-left">
+        <div class="relative group flex items-center">
+          <strong>🎭 Type:</strong>
+          <span class="ml-1">{{ user_profile.personality_type }}</span>
+          <span class="ml-1 text-gray-400 cursor-help relative">
+            ❔
+            <span class="absolute left-1/2 bottom-full mb-2 -translate-x-1/2 hidden group-hover:block bg-white text-gray-800 text-xs rounded px-3 py-2 shadow-lg w-48 z-50">
+              Тип личности, определенный по тесту. Помогает понять ваши сильные стороны.
+            </span>
+          </span>
+        </div>
+        <div class="relative group flex items-center">
+          <strong>🏆 Experience:</strong>
+          <span class="ml-1">{{ user_profile.exp % 100 }}/100</span>
+          <span class="ml-1 text-gray-400 cursor-help relative">
+            ❔
+            <span class="absolute left-1/2 bottom-full mb-2 -translate-x-1/2 hidden group-hover:block bg-white text-gray-800 text-xs rounded px-3 py-2 shadow-lg w-48 z-50">
+              Это количество заработанного Вами опыта. Его можно получать за прохождение курсов и тестов.
+            </span>
+          </span>
+        </div>
+        <div class="relative group flex items-center">
+          <strong>📈 Level:</strong>
+          <span class="ml-1">{{ user_profile.exp // 100 }}</span>
+          <span class="ml-1 text-gray-400 cursor-help relative">
+            ❔
+            <span class="absolute left-1/2 bottom-full mb-2 -translate-x-1/2 hidden group-hover:block bg-white text-gray-800 text-xs rounded px-3 py-2 shadow-lg w-48 z-50">
+              Уровень пользователя. Повышается с получением опыта.
+            </span>
+          </span>
+        </div>
+      </div>
+      {% else %}
+      <div class="flex flex-col items-center mb-4">
+        <img src="{{ url_for('static', filename=('content/'+user_profile.avatar if user_profile.avatar else 'content/base_avatar.jpg')) }}"
+             alt="avatar"
+             class="w-24 h-24 rounded-full border-4 border-purple-300 shadow">
+        <h3 class="text-xl font-semibold mt-2">Новый пользователь</h3>
+        <p class="text-sm text-gray-600">Почты нет</p>
+      </div>
+
+      <div class="text-sm space-y-3 mb-4 text-left">
+        <div class="relative group flex items-center">
+          <strong>🎭 Type:</strong>
+          <span class="ml-1">Тип неопределен</span>
+          <span class="ml-1 text-gray-400 cursor-help relative">
+            ❔
+            <span class="absolute left-1/2 bottom-full mb-2 -translate-x-1/2 hidden group-hover:block bg-white text-gray-800 text-xs rounded px-3 py-2 shadow-lg w-48 z-50">
+              Тип личности, определенный по тесту. Помогает понять ваши сильные стороны.
+            </span>
+          </span>
+        </div>
+        <div class="relative group flex items-center">
+          <strong>🏆 Experience:</strong>
+          <span class="ml-1">Опыта нет</span>
+          <span class="ml-1 text-gray-400 cursor-help relative">
+            ❔
+            <span class="absolute left-1/2 bottom-full mb-2 -translate-x-1/2 hidden group-hover:block bg-white text-gray-800 text-xs rounded px-3 py-2 shadow-lg w-48 z-50">
+              Это количество заработанного Вами опыта. Его можно получать за прохождение курсов и тестов.
+            </span>
+          </span>
+        </div>
+        <div class="relative group flex items-center">
+          <strong>📈 Level:</strong>
+          <span class="ml-1">Уровня нет</span>
+          <span class="ml-1 text-gray-400 cursor-help relative">
+            ❔
+            <span class="absolute left-1/2 bottom-full mb-2 -translate-x-1/2 hidden group-hover:block bg-white text-gray-800 text-xs rounded px-3 py-2 shadow-lg w-48 z-50">
+              Уровень пользователя. Повышается с получением опыта.
+            </span>
+          </span>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+
+  <!-- Низ: кнопки -->
+  <nav class="flex flex-col items-center gap-3 mt-8">
+    {% if session.user %}
+      <span class="text-sm text-gray-600">👤 {{ session.user.name }}</span>
+      {% if session.user.email == 'admin@gmail.com' %}
+        <a href="{{ url_for('editor.admin') }}"
+           class="bg-yellow-400 text-white px-4 py-2 rounded-full hover:bg-yellow-500 transition w-full text-center">
+          🛠 Админ-панель
+        </a>
+        <a href="{{ url_for('editor.editor') }}"
+           class="bg-orange-400 text-white px-4 py-2 rounded-full hover:bg-orange-500 transition w-full text-center">
+          🧰 Меню редактора
+        </a>
+      {% endif %}
+      <a href="{{ url_for('auth.logout') }}"
+         class="bg-indigo-500 text-white px-4 py-2 rounded-full hover:bg-indigo-600 transition w-full text-center">
+        🚪 Выйти
+      </a>
+    {% else %}
+      <a href="{{ url_for('auth.login') }}"
+         class="bg-indigo-500 text-white px-4 py-2 rounded-full hover:bg-indigo-600 transition w-full text-center">
+        Войти
+      </a>
+      <a href="{{ url_for('auth.register') }}"
+         class="bg-indigo-500 text-white px-4 py-2 rounded-full hover:bg-indigo-600 transition w-full text-center">
+        Регистрация
+      </a>
+    {% endif %}
+  </nav>
+</aside>
+
+<div class="ml-0 lg:ml-96">
+    {% block content %}
+    {% endblock %}
+</div>
+{% endblock %}

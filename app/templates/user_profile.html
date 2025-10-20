@@ -1,0 +1,44 @@
+{% extends 'base_page.html' %}
+{% block title %}Профиль пользователя{% endblock %}
+
+{% block content %}
+<div class="pt-20 px-6 min-h-screen bg-gradient-to-br from-green-100 to-blue-100">
+  <div class="max-w-3xl mx-auto bg-white p-6 rounded-xl shadow-md">
+    <div class="flex flex-col md:flex-row items-center gap-6">
+      <img src="{{ url_for('static', filename=('content/'+user_profile.avatar if user_profile.avatar else 'content/base_avatar.jpg')) }}"
+           alt="Аватар пользователя"
+           class="w-32 h-32 rounded-full border-4 border-indigo-300">
+
+      <div class="text-center md:text-left">
+        <h2 class="text-2xl font-bold text-indigo-700">{{ user.name }}</h2>
+        <p class="text-gray-500">{{ user.email }}</p>
+        {% if user.personality_type %}
+        <p class="mt-2 text-sm text-indigo-500">Психотип: <strong>{{ user.personality_type }}</strong></p>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if stats %}
+    <div class="mt-6 grid grid-cols-2 gap-4">
+      <div class="bg-indigo-50 p-4 rounded shadow text-center">
+        <p class="text-sm text-gray-500">📈 Уровень</p>
+        <p class="text-xl font-bold text-indigo-600">{{ stats.exp // 100 }}</p>
+      </div>
+      <div class="bg-indigo-50 p-4 rounded shadow text-center">
+        <p class="text-sm text-gray-500">✨ Опыт</p>
+        <p class="text-xl font-bold text-indigo-600">{{ stats.exp }}</p>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+  {% if session.user.email != user.email %}
+    <form method="POST" action="{{ url_for('profile.toggle_follow', email=user.email) }}">
+        {% if is_following %}
+            <button class="bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600 transition">Отписаться</button>
+        {% else %}
+            <button class="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600 transition">Подписаться</button>
+        {% endif %}
+    </form>
+{% endif %}
+</div>
+{% endblock %}

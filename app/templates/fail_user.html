@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Пользователь не найден{% endblock %}
+
+{% block cont %}
+<section class="container text-center py-16">
+    <div class="bg-white shadow-xl rounded-xl p-8 max-w-lg mx-auto">
+        <h2 class="text-3xl font-bold text-red-600 mb-4">🚫 Пользователь не найден</h2>
+        <p class="text-gray-700 mb-6">
+            К сожалению, мы не смогли найти информацию о вашем профиле. Возможно, вы не зарегистрированы или произошла ошибка.
+        </p>
+
+        {% if message %}
+        <p class="text-sm text-gray-500 italic mb-4">{{ message }}</p>
+        {% endif %}
+
+        <a href="{{ url_for('auth.login') }}" class="btn-primary">Вернуться ко входу</a>
+    </div>
+</section>
+{% endblock %}

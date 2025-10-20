@@ -1,0 +1,47 @@
+{% extends 'base_page.html' %}
+{% block title %}Подписки | MindGrow{% endblock %}
+
+{% block content %}
+<div class="pt-20 px-6 min-h-screen bg-gradient-to-br from-green-100 to-blue-100">
+  <div class="max-w-4xl mx-auto">
+    <h1 class="text-3xl font-bold text-indigo-700 mb-6">📋 Рейтинг ваших подписок</h1>
+    <form method="GET" action="{{ url_for('profile.redirect_to_profile') }}" class="mb-6">
+      <div class="flex items-center space-x-2">
+        <input type="text" name="email" placeholder="Введите email пользователя"
+               class="w-full p-2 border rounded-lg shadow-sm focus:ring focus:border-indigo-300">
+        <button type="submit"
+                class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
+          Найти
+        </button>
+      </div>
+    </form>
+
+    {% if profiles %}
+      <div class="space-y-4">
+        {% for p in profiles %}
+        <div class="bg-white rounded-xl shadow-md p-4 flex items-center justify-between border border-gray-200">
+          <div class="flex items-center space-x-4">
+
+
+            <img src="{{ url_for('static', filename='content/'+p.avatar if user_profile.avatar else 'content/base_avatar.jpg') }}"
+                 class="w-16 h-16 rounded-full border-2 border-indigo-500" alt="avatar">
+            <div>
+              <h2 class="text-lg font-semibold text-gray-800">{{ p.name }}</h2>
+              <p class="text-sm text-gray-500">{{ p.email }}</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <p class="text-indigo-600 font-bold text-lg">🔰 {{ p.level or 0 }} уровень</p>
+            <p class="text-gray-600 text-sm">🔥 {{ p.exp or 0 }} опыта</p>
+            <a href="{{ url_for('profile.view_user_profile', user_email=p.email) }}"
+               class="text-sm text-indigo-500 hover:underline mt-1 block">Перейти →</a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-gray-600">Вы ещё ни на кого не подписаны 🤷‍♂️</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

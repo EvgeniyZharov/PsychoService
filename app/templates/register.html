@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}Регистрация{% endblock %}
+
+{% block cont %}
+<div class="pt-24 max-w-md mx-auto">
+  <h2 class="text-2xl font-bold mb-4">👤 Регистрация</h2>
+  {% if error %}<p class="text-red-500 mb-2">{{ error }}</p>{% endif %}
+  <form method="POST" class="space-y-4">
+    <input type="text" name="name" placeholder="Имя" required class="w-full p-2 border rounded">
+    <input type="email" name="email" placeholder="Email" required class="w-full p-2 border rounded">
+    <input type="password" name="password" placeholder="Пароль" required class="w-full p-2 border rounded">
+    <button class="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600 w-full">Создать аккаунт</button>
+  </form>
+</div>
+<p class="text-xs text-gray-500 mt-6 text-center">
+  Создавая аккаунт, вы соглашаетесь с <a href="{{ url_for('main.terms') }}" class="text-indigo-500 hover:underline">Условиями использования</a>.
+</p>
+{% endblock %}
