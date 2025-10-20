@@ -1,0 +1,145 @@
++++++
+Таблица: answers
+id
+ask_id
+text
+score
++++++
++++++
+Таблица: asks
+id
+theme_id
+ask
++++++
++++++
+Таблица: author_courses
+id
+title
+description
+author
+traits
+first_lesson_id
+available
+condition
++++++
++++++
+Таблица: content
+id
+lesson_id
+lesson_page
+type
+content
++++++
++++++
+Таблица: guest_emails
+email
+collected_at
++++++
++++++
+Таблица: lessons
+id
+course_id
+page
+count_pages
++++++
++++++
+Таблица: levels_course
+id
+chapter_id
+title
+description
+step
+level
++++++
++++++
+Таблица: main_courses
+id
+title
+description
+author
+traits
+first_lesson_id
+available
+condition
++++++
++++++
+Таблица: questions
+id
+lesson_id
+lesson_page
+qa
++++++
++++++
+Таблица: reset_tokens
+token
+email
+created_at
++++++
++++++
+Таблица: role_test_questions
+id
+text
+options
++++++
++++++
+Таблица: test_skills
+id
+theme_id
+asks
+total
+title
++++++
++++++
+Таблица: test_themes
+id
+title
+description
++++++
++++++
+Таблица: traits
+id
+name
++++++
++++++
+Таблица: user_courses_progress
+user_email
+course_id
+progress
++++++
++++++
+Таблица: user_goals
+id
+user_email
+goal
++++++
++++++
+Таблица: user_profiles
+email
+name
+password
+personality_type
+status
++++++
++++++
+Таблица: user_tests_completed
+user_email
+test_id
+completed_at
++++++
++++++
+Таблица: user_traits
+user_email
+trait_id
+value
++++++
++++++
+Таблица: users_tests
+user_id
+test_id
++++++
++++++
+Таблица: users_tests_results
+user_id
+skill_id
+score
++++++
