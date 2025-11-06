@@ -2,350 +2,1340 @@
 {% block title %}Редактор курсов | MindGrow{% endblock %}
 
 {% block content %}
+<style>
+    .hidden_editor {
+        display: none;
+    }
+    .content-item {
+        border: 1px solid #e2e8f0;
+        border-radius: 0.375rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        background-color: #f8fafc;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .content-item:hover {
+        background-color: #e2e8f0;
+        border-color: #cbd5e0;
+    }
+    .content-item.selected {
+        background-color: #dbeafe;
+        border-color: #3b82f6;
+    }
+    .content-title {
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+        color: #2d3748;
+    }
+    .content-body {
+        white-space: pre-line;
+        color: #4a5568;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out;
+    }
+    .content-body.expanded {
+        max-height: 500px;
+    }
+    .content-preview {
+        font-size: 0.875rem;
+        color: #718096;
+        margin-top: 0.5rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    .form-label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #374151;
+    }
+    .form-input {
+        width: 100%;
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.375rem;
+        font-size: 1rem;
+    }
+    .form-input:focus {
+        outline: none;
+        ring: 2px solid #3b82f6;
+        border-color: #3b82f6;
+    }
+    .form-textarea {
+        width: 100%;
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.375rem;
+        font-size: 1rem;
+        min-height: 120px;
+        resize: vertical;
+    }
+    .btn {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 0.375rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    .btn-primary {
+        background-color: #3b82f6;
+        color: white;
+    }
+    .btn-primary:hover {
+        background-color: #2563eb;
+    }
+    .btn-success {
+        background-color: #10b981;
+        color: white;
+    }
+    .btn-success:hover {
+        background-color: #059669;
+    }
+    .btn-secondary {
+        background-color: #6b7280;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 0.375rem;
+        border: none;
+        cursor: pointer;
+    }
+    .btn-secondary:hover {
+        background-color: #4b5563;
+    }
+    .question-item {
+        border: 2px solid #e5e7eb;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        background: white;
+        transition: all 0.2s;
+    }
+    .question-item:hover {
+        border-color: #3b82f6;
+    }
+    .answer-item {
+        border: 1px solid #d1d5db;
+        border-radius: 0.375rem;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+        background: #f9fafb;
+    }
+    .answer-header {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+</style>
 
-  <!-- Панель навигации -->
-  <div x-data="{ section: '', subsection: '' }" class="pt-20 px-6 bg-gradient-to-br from-white to-indigo-50 min-h-screen">
-  <h1 class="text-3xl font-bold text-indigo-700 mb-6">🛠 Редактор курсов</h1>
+<div x-data="{ section: '', subsection: '' }" class="pt-20 px-6 bg-gradient-to-br from-white to-indigo-50 min-h-screen">
+    <h1 class="text-3xl font-bold text-indigo-700 mb-6">🛠 Редактор курсов</h1>
 
-  <!-- Главное меню -->
-  <div class="flex space-x-4 mb-6">
-    <button @click="section = 'add'; subsection = ''" :class="section === 'add' ? 'bg-indigo-500 text-white' : 'bg-white text-indigo-600'" class="btn px-4 py-2 rounded shadow">➕ Добавить</button>
-    <button @click="section = 'delete'; subsection = ''" :class="section === 'delete' ? 'bg-red-500 text-white' : 'bg-white text-red-600'" class="btn px-4 py-2 rounded shadow">❌ Удалить</button>
-    <button @click="section = 'update'; subsection = ''" :class="section === 'update' ? 'bg-blue-500 text-white' : 'bg-white text-blue-600'" class="btn px-4 py-2 rounded shadow">🛠 Изменить</button>
-  </div>
-
-  <!-- Подменю (динамически по разделу) -->
-  <div x-show="section" class="flex gap-3 mb-8">
-    <template x-if="section === 'add'">
-      <div class="flex gap-3">
-        <button @click="subsection = 'test'" class="btn-secondary">🧪 Тест</button>
-        <button @click="subsection = 'course'" class="btn-secondary">📘 Курс</button>
-        <button @click="subsection = 'lesson'" class="btn-secondary">📖 Урок</button>
-      </div>
-
-    </template>
-
-    <template x-if="section === 'delete'">
-      <div class="flex gap-3">
-        <button @click="subsection = 'delete_test'" class="btn-secondary">🗑 Тест</button>
-        <button @click="subsection = 'delete_course'" class="btn-secondary">🗑 Курс</button>
-      </div>
-    </template>
-
-    <template x-if="section === 'update'">
-      <div class="flex gap-3">
-        <button @click="subsection = 'edit_test'" class="btn-secondary">✏️ Тест</button>
-        <button @click="subsection = 'edit_course'" class="btn-secondary">✏️ Курс</button>
-      </div>
-    </template>
-  </div>
-    <div x-show="subsection === 'delete_test'" class="bg-white p-6 rounded shadow space-y-4">
-      <h2 class="text-xl font-bold text-red-600 mb-4">🗑 Удалить тест</h2>
-      <form id="delete-test-form">
-        <label class="block font-medium text-gray-700 mb-2">Выберите тест для удаления</label>
-        <select name="test_id" required class="w-full input border px-4 py-2 rounded">
-          {% for test in tests %}
-            <option value="{{ test.id }}">{{ test.title }}</option>
-          {% endfor %}
-        </select>
-        <button type="submit" class="mt-4 bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700">
-          Удалить
-        </button>
-        <p id="delete-test-status" class="text-green-600 hidden mt-2">✅ Тест успешно удалён!</p>
-      </form>
+    <!-- Главное меню -->
+    <div class="flex space-x-4 mb-6">
+        <button @click="section = 'add'; subsection = ''" :class="section === 'add' ? 'bg-indigo-500 text-white' : 'bg-white text-indigo-600'" class="btn px-4 py-2 rounded shadow">➕ Добавить</button>
+        <button @click="section = 'delete'; subsection = ''" :class="section === 'delete' ? 'bg-red-500 text-white' : 'bg-white text-red-600'" class="btn px-4 py-2 rounded shadow">❌ Удалить</button>
+        <button @click="section = 'update'; subsection = ''" :class="section === 'update' ? 'bg-blue-500 text-white' : 'bg-white text-blue-600'" class="btn px-4 py-2 rounded shadow">🛠 Изменить</button>
     </div>
-    <div x-show="subsection === 'delete_course'" class="bg-white p-6 rounded shadow space-y-4">
-      <h2 class="text-xl font-bold text-red-600 mb-4">🗑 Удалить курс</h2>
-      <form id="delete-course-form">
-        <label class="block font-medium text-gray-700 mb-2">Выберите курс для удаления</label>
-        <select name="course_id" required class="w-full input border px-4 py-2 rounded">
-          {% for course in courses %}
-            <option value="{{ course.id }}">{{ course.title }}</option>
-          {% endfor %}
-        </select>
-        <button type="submit" class="mt-4 bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700">
-          Удалить
-        </button>
-        <p id="delete-course-status" class="text-green-600 hidden mt-2">✅ Курс успешно удалён!</p>
-      </form>
+
+    <!-- Подменю (динамически по разделу) -->
+    <div x-show="section" class="flex gap-3 mb-8">
+        <template x-if="section === 'add'">
+            <div class="flex gap-3">
+                <button @click="subsection = 'test'" class="btn-secondary">🧪 Тест</button>
+                <button @click="subsection = 'course'" class="btn-secondary">📘 Курс</button>
+                <button @click="subsection = 'lesson'" class="btn-secondary">📖 Урок</button>
+            </div>
+        </template>
+
+        <template x-if="section === 'delete'">
+            <div class="flex gap-3">
+                <button @click="subsection = 'delete_test'" class="btn-secondary">🗑 Тест</button>
+                <button @click="subsection = 'delete_course'" class="btn-secondary">🗑 Курс</button>
+            </div>
+        </template>
+
+        <template x-if="section === 'update'">
+            <div class="flex gap-3">
+                <button @click="subsection = 'edit_test'" class="btn-secondary">✏️ Тест</button>
+                <button @click="subsection = 'edit_course'" class="btn-secondary">✏️ Курс</button>
+                <button @click="subsection = 'edit_lesson'" class="btn-secondary">✏️ Урок</button>
+                <button @click="subsection = 'edit_content'" class="btn-secondary">✏️ Контент</button>
+            </div>
+        </template>
     </div>
 
+    <!-- РЕДАКТИРОВАНИЕ ТЕСТА И ВОПРОСОВ -->
     <div x-show="subsection === 'edit_test'" class="bg-white p-6 rounded shadow space-y-4">
-      <form method="POST" action="{{ url_for('editor.update_test') }}">
-        <label class="block font-medium text-gray-700">Выберите тест</label>
-        <select name="test_id" class="w-full border px-2 py-1 rounded mb-2" x-model="selectedTestId" @change="fetchTestData($event)">
-          {% for test in tests %}
-            <option value="{{ test.id }}">{{ test.title }}</option>
-          {% endfor %}
-        </select>
+        <h2 class="text-xl font-bold text-blue-600 mb-4">✏️ Редактирование теста и вопросов</h2>
 
-        <input type="text" name="title" x-model="testData.title" class="border rounded px-2 py-1 mb-1 w-full" placeholder="Название теста">
-        <textarea name="description" x-model="testData.description" class="border rounded px-2 py-1 mb-1 w-full" placeholder="Описание"></textarea>
+        <!-- Выбор теста -->
+        <div class="form-group">
+            <label class="form-label">Выберите тест</label>
+            <select id="testSelect" onchange="onTestChange()" class="form-input">
+                <option value="">-- Выберите тест --</option>
+                {% for test in tests %}
+                    <option value="{{ test.id }}">{{ test.title }}</option>
+                {% endfor %}
+            </select>
+        </div>
 
-        <button type="submit" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">💾 Сохранить</button>
-      </form>
+        <!-- Форма редактирования теста -->
+        <div id="testEditForm" class="hidden_editor mt-4 p-4 border border-gray-200 rounded">
+            <h3 class="font-bold text-lg mb-4">Редактирование теста</h3>
 
+            <div class="form-group">
+                <label class="form-label">Название теста</label>
+                <input type="text" id="testTitleInput" class="form-input" placeholder="Введите название теста">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Описание теста</label>
+                <textarea id="testDescriptionTextarea" class="form-textarea" placeholder="Введите описание теста"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="flex items-center">
+                    <input type="checkbox" id="testIsMainCheckbox" class="mr-2">
+                    <span>Главный тест</span>
+                </label>
+            </div>
+
+            <button type="button" onclick="saveTestChanges()" class="btn btn-primary">
+                💾 Сохранить изменения теста
+            </button>
+        </div>
+
+        <!-- Список вопросов -->
+        <div id="questionsContainer" class="hidden_editor mt-6">
+            <h3 class="font-bold text-lg mb-4">Вопросы теста</h3>
+
+            <!-- Кнопка добавления нового вопроса -->
+<!--            <button type="button" onclick="addNewQuestion()" class="btn btn-success mb-4">-->
+<!--                ➕ Добавить новый вопрос-->
+<!--            </button>-->
+
+            <div id="questionsList" class="space-y-4">
+                <!-- Вопросы будут отображаться здесь -->
+            </div>
+        </div>
     </div>
+
+    <!-- РЕДАКТИРОВАНИЕ КУРСА -->
     <div x-show="subsection === 'edit_course'" class="bg-white p-6 rounded shadow space-y-4">
-      <form method="POST" action="{{ url_for('editor.update_course') }}">
-        <label class="block font-medium text-gray-700">Выберите курс</label>
-        <select name="course_id" class="w-full border px-2 py-1 rounded mb-2" x-model="selectedCourseId">
-          {% for course in courses %}
-            <option value="{{ course.id }}">{{ course.title }}</option>
-          {% endfor %}
-        </select>
+        <h2 class="text-xl font-bold text-blue-600 mb-4">✏️ Редактирование курса</h2>
 
-        <input type="text" name="title" x-model="courseData.title" class="border rounded px-2 py-1 mb-1 w-full" placeholder="Название курса">
-        <textarea name="description" x-model="courseData.description" class="border rounded px-2 py-1 mb-1 w-full" placeholder="Описание курса"></textarea>
-
-        <button type="submit" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">💾 Сохранить</button>
-      </form>
-    </div>
-
-  <!-- Добавление теста -->
-<div x-show="subsection === 'test'" class="bg-white p-6 rounded shadow space-y-4">
-  <h2 class="text-xl font-bold text-indigo-700 mb-4">🧪 Добавить тест</h2>
-  <!-- Загрузка CSV файлов -->
-  <form id="add-test-form" action="/upload_test_csv" enctype="multipart/form-data">
-    <!-- Название и описание темы -->
-    <div>
-          <label>📄 CSV с вопросами и ответами: </label>
-          <input type="file" name="csv_asks" accept=".csv" required>
+        <div class="form-group">
+            <label class="form-label">Выберите курс</label>
+            <select id="courseSelectCourse" onchange="onCourseChangeCourse()" class="form-input">
+                <option value="">-- Выберите курс --</option>
+                {% for course in courses %}
+                    <option value="{{ course.id }}">{{ course.title }}</option>
+                {% endfor %}
+            </select>
         </div>
-        <div>
-          <label>📄 CSV с чертами характера и вопросами: </label>
-          <input type="file" name="csv_traits" accept=".csv" required>
+
+        <!-- Форма редактирования курса -->
+        <div id="courseEditForm" class="hidden_editor mt-4 p-4 border border-gray-200 rounded">
+            <h3 class="font-bold text-lg mb-4">Редактирование курса</h3>
+
+            <div class="form-group">
+                <label class="form-label">Название курса</label>
+                <input type="text" id="courseTitleInput" class="form-input" placeholder="Введите название курса">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Описание курса</label>
+                <textarea id="courseDescriptionTextarea" class="form-textarea" placeholder="Введите описание курса"></textarea>
+            </div>
+
+            <button type="button" onclick="saveCourseChanges()" class="btn btn-primary">
+                💾 Сохранить изменения курса
+            </button>
         </div>
-    <div>
-      <label class="block font-medium text-gray-700">Название темы</label>
-      <input type="text" name="title" required class="w-full input border px-4 py-2 rounded mt-1" placeholder="Например: Акцентуации характера">
     </div>
 
-    <div>
-      <label class="block font-medium text-gray-700 mt-4">Описание темы</label>
-      <textarea name="description" rows="3" class="w-full input border px-4 py-2 rounded mt-1" placeholder="Краткое описание теста..."></textarea>
+    <!-- УДАЛЕНИЕ ТЕСТА -->
+    <div x-show="subsection === 'delete_test'" class="bg-white p-6 rounded shadow space-y-4">
+        <h2 class="text-xl font-bold text-red-600 mb-4">🗑 Удалить тест</h2>
+        <form id="delete-test-form">
+            <label class="block font-medium text-gray-700 mb-2">Выберите тест для удаления</label>
+            <select name="test_id" required class="w-full input border px-4 py-2 rounded">
+                {% for test in tests %}
+                    <option value="{{ test.id }}">{{ test.title }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="mt-4 bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700">
+                Удалить
+            </button>
+            <p id="delete-test-status" class="text-green-600 hidden_editor mt-2">✅ Тест успешно удалён!</p>
+        </form>
     </div>
 
-    <!-- Галочка -->
-    <div class="pt-3">
-        <label class="flex items-center">
-            <input type="checkbox" name="is_public" value="true" class="mr-2">
-            <span>Сделать тест главным</span>
-        </label>
+    <!-- УДАЛЕНИЕ КУРСА -->
+    <div x-show="subsection === 'delete_course'" class="bg-white p-6 rounded shadow space-y-4">
+        <h2 class="text-xl font-bold text-red-600 mb-4">🗑 Удалить курс</h2>
+        <form id="delete-course-form">
+            <label class="block font-medium text-gray-700 mb-2">Выберите курс для удаления</label>
+            <select name="course_id" required class="w-full input border px-4 py-2 rounded">
+                {% for course in courses %}
+                    <option value="{{ course.id }}">{{ course.title }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="mt-4 bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700">
+                Удалить
+            </button>
+            <p id="delete-course-status" class="text-green-600 hidden_editor mt-2">✅ Курс успешно удалён!</p>
+        </form>
     </div>
 
-    <!-- Кнопка отправки -->
-    <div class="pt-4">
-      <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700">
-        💾 Добавить тест
-      </button>
+    <!-- РЕДАКТИРОВАНИЕ УРОКА -->
+    <div x-show="subsection === 'edit_lesson'" class="bg-white p-6 rounded shadow space-y-4">
+        <h2 class="text-xl font-bold text-blue-600 mb-4">✏️ Редактирование урока</h2>
+
+        <div class="space-y-4">
+            <!-- Выбор курса -->
+            <div class="form-group">
+                <label class="form-label">Выберите курс</label>
+                <select id="courseSelectLesson" onchange="onCourseChangeLesson()" class="form-input">
+                    <option value="">-- Выберите курс --</option>
+                    {% for course in courses %}
+                        <option value="{{ course.id }}">{{ course.title }} ({{ course.lessons|length }} уроков)</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Выбор урока -->
+            <div class="form-group">
+                <label class="form-label">Выберите урок</label>
+                <select id="lessonSelectLesson" onchange="onLessonSelectLesson()" disabled class="form-input">
+                    <option value="">-- Сначала выберите курс --</option>
+                </select>
+            </div>
+
+            <!-- Форма редактирования урока -->
+            <div id="lessonEditForm" class="hidden_editor mt-4 p-4 border border-gray-200 rounded">
+                <h3 class="font-bold text-lg mb-4">Редактирование урока</h3>
+
+                <div class="form-group">
+                    <label class="form-label">Название урока</label>
+                    <input type="text" id="lessonTitleInput" class="form-input" placeholder="Введите название урока">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Описание урока</label>
+                    <textarea id="lessonDescriptionTextarea" class="form-textarea" placeholder="Введите описание урока"></textarea>
+                </div>
+
+                <button type="button" onclick="saveLessonChanges()" class="btn btn-primary">
+                    💾 Сохранить изменения урока
+                </button>
+            </div>
+        </div>
     </div>
 
-    <!-- Статус -->
-    <p id="add-test-status" class="text-green-600 hidden mt-2">✅ Тест добавлен успешно!</p>
-  </form>
-</div>
+    <!-- РЕДАКТИРОВАНИЕ КОНТЕНТА -->
+    <div x-show="subsection === 'edit_content'" class="bg-white p-6 rounded shadow space-y-4">
+        <h2 class="text-xl font-bold text-blue-600 mb-4">✏️ Редактирование контента урока</h2>
 
-  <div x-show="subsection === 'course'" class="bg-white p-6 rounded shadow">
-    <h2 class="text-xl font-semibold text-indigo-600 mb-4">📘 Добавить курс</h2>
+        <div class="space-y-4">
+            <!-- Выбор курса -->
+            <div class="form-group">
+                <label class="form-label">Выберите курс</label>
+                <select id="courseSelectContent" onchange="onCourseChangeContent()" class="form-input">
+                    <option value="">-- Выберите курс --</option>
+                    {% for course in courses %}
+                        <option value="{{ course.id }}">{{ course.title }} ({{ course.lessons|length }} уроков)</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Выбор урока -->
+            <div class="form-group">
+                <label class="form-label">Выберите урок</label>
+                <select id="lessonSelectContent" onchange="onLessonChangeContent()" disabled class="form-input">
+                    <option value="">-- Сначала выберите курс --</option>
+                </select>
+            </div>
+
+            <!-- Выбор контента -->
+            <div id="contentSelectContainer" class="form-group hidden_editor">
+                <label class="form-label">Выберите раздел контента</label>
+                <select id="contentSelect" onchange="onContentChange()" class="form-input">
+                    <option value="">-- Выберите раздел --</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Форма редактирования контента -->
+        <div id="editContentForm" class="hidden_editor mt-6 p-4 border border-gray-200 rounded">
+            <h3 class="font-bold text-lg mb-4">Редактирование контента</h3>
+
+            <div class="form-group">
+                <label class="form-label">Тип контента</label>
+                <select id="contentTypeSelect" class="form-input">
+                    <option value="txt">Текст</option>
+                    <option value="image">Картинка</option>
+                    <option value="video">Видео</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Заголовок контента</label>
+                <input type="text" id="contentTitleInput" class="form-input" placeholder="Введите заголовок контента">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Содержание контента</label>
+                <textarea id="contentBodyTextarea" class="form-textarea" placeholder="Введите содержание контента"></textarea>
+            </div>
+
+            <div class="flex space-x-3">
+                <button type="button" onclick="saveContentChanges()" class="btn btn-primary">
+                    💾 Сохранить изменения контента
+                </button>
+            </div>
+        </div>
+
+        <!-- Блок всего контента урока -->
+        <div id="allLessonContent" class="hidden_editor mt-6">
+            <h3 class="font-bold text-lg mb-4">Все разделы урока:</h3>
+            <div id="contentItems" class="space-y-3">
+                <!-- Контент будет отображаться здесь -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ДОБАВЛЕНИЕ ТЕСТА -->
+    <div x-show="subsection === 'test'" class="bg-white p-6 rounded shadow space-y-4">
+        <h2 class="text-xl font-bold text-indigo-700 mb-4">🧪 Добавить тест</h2>
+        <form id="add-test-form" action="/upload_test_csv" enctype="multipart/form-data">
+            <div>
+                <label>📄 CSV с вопросами и ответами: </label>
+                <input type="file" name="csv_asks" accept=".csv" required>
+            </div>
+            <div>
+                <label>📄 CSV с чертами характера и вопросами: </label>
+                <input type="file" name="csv_traits" accept=".csv" required>
+            </div>
+            <div>
+                <label class="block font-medium text-gray-700">Название темы</label>
+                <input type="text" name="title" required class="w-full input border px-4 py-2 rounded mt-1" placeholder="Например: Акцентуации характера">
+            </div>
+            <div>
+                <label class="block font-medium text-gray-700 mt-4">Описание темы</label>
+                <textarea name="description" rows="3" class="w-full input border px-4 py-2 rounded mt-1" placeholder="Краткое описание теста..."></textarea>
+            </div>
+            <div class="pt-3">
+                <label class="flex items-center">
+                    <input type="checkbox" name="is_public" value="true" class="mr-2">
+                    <span>Сделать тест главным</span>
+                </label>
+            </div>
+            <div class="pt-4">
+                <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700">
+                    💾 Добавить тест
+                </button>
+            </div>
+            <p id="add-test-status" class="text-green-600 hidden_editor mt-2">✅ Тест добавлен успешно!</p>
+        </form>
+    </div>
+
+    <!-- ДОБАВЛЕНИЕ КУРСА -->
     <div x-show="subsection === 'course'" class="bg-white p-6 rounded shadow">
-  <h2 class="text-xl font-semibold text-indigo-600 mb-4">📘 Добавить курс</h2>
-
-  <form id="add-course-form">
-    <!-- Название курса -->
-    <div>
-      <label class="block font-medium text-gray-700">Название курса</label>
-      <input type="text" name="title" required class="w-full input border px-4 py-2 rounded mt-1" placeholder="Например: Развитие самооценки">
+        <h2 class="text-xl font-semibold text-indigo-600 mb-4">📘 Добавить курс</h2>
+        <form id="add-course-form">
+            <div>
+                <label class="block font-medium text-gray-700">Название курса</label>
+                <input type="text" name="title" required class="w-full input border px-4 py-2 rounded mt-1" placeholder="Например: Развитие самооценки">
+            </div>
+            <div class="mt-4">
+                <label class="block font-medium text-gray-700">Уровень (1–20)</label>
+                <select name="level" required class="w-full input border px-4 py-2 rounded mt-1">
+                    {% for i in range(1, 21) %}
+                        <option value="{{ i }}">{{ i }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mt-4">
+                <label class="block font-medium text-gray-700">Тип курса</label>
+                <select name="type" required class="w-full input border px-4 py-2 rounded mt-1">
+                    <option value="main">Основная ветка</option>
+                    <option value="secondary">Второстепенная</option>
+                </select>
+            </div>
+            <div class="mt-4">
+                <label class="block font-medium text-gray-700">Описание курса</label>
+                <textarea name="description" rows="3" class="w-full input border px-4 py-2 rounded mt-1" placeholder="Краткое описание курса..."></textarea>
+            </div>
+            <div class="pt-4">
+                <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700">
+                    💾 Добавить курс
+                </button>
+            </div>
+            <p id="add-course-status" class="text-green-600 hidden_editor mt-2">✅ Курс добавлен успешно!</p>
+        </form>
     </div>
 
-    <!-- Уровень курса -->
-    <div class="mt-4">
-      <label class="block font-medium text-gray-700">Уровень (1–20)</label>
-      <select name="level" required class="w-full input border px-4 py-2 rounded mt-1">
-        {% for i in range(1, 21) %}
-          <option value="{{ i }}">{{ i }}</option>
-        {% endfor %}
-      </select>
+    <!-- ДОБАВЛЕНИЕ УРОКА -->
+    <div x-show="subsection === 'lesson'" class="bg-white p-6 rounded shadow space-y-4">
+        <h2 class="text-xl font-bold text-indigo-700 mb-4">📖 Добавить урок</h2>
+        <form id="add-lesson-form">
+            <div class="mt-4">
+                <label class="block font-medium text-gray-700">Курс</label>
+                <select name="course_title" required class="w-full input border px-4 py-2 rounded mt-1">
+                    {% for course in courses %}
+                        <option value="{{ course.title }}">{{ course.title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="block font-medium text-gray-700">Название урока</label>
+                <input type="text" name="title" required class="w-full input border px-4 py-2 rounded mt-1" placeholder="Например: Основы уверенности">
+            </div>
+            <div class="mt-4">
+                <label class="block font-medium text-gray-700">Описание урока</label>
+                <textarea name="description" rows="3" class="w-full input border px-4 py-2 rounded mt-1" placeholder="Краткое описание урока..."></textarea>
+            </div>
+            <div class="pt-4">
+                <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700">
+                    💾 Добавить урок
+                </button>
+            </div>
+            <p id="add-lesson-status" class="text-green-600 hidden_editor mt-2">✅ Урок добавлен</p>
+        </form>
     </div>
-
-    <!-- Тип курса -->
-    <div class="mt-4">
-      <label class="block font-medium text-gray-700">Тип курса</label>
-      <select name="type" required class="w-full input border px-4 py-2 rounded mt-1">
-        <option value="main">Основная ветка</option>
-        <option value="secondary">Второстепенная</option>
-      </select>
-    </div>
-
-    <!-- Описание курса -->
-    <div class="mt-4">
-      <label class="block font-medium text-gray-700">Описание курса</label>
-      <textarea name="description" rows="3" class="w-full input border px-4 py-2 rounded mt-1" placeholder="Краткое описание курса..."></textarea>
-    </div>
-
-    <!-- Кнопка отправки -->
-    <div class="pt-4">
-      <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700">
-        💾 Добавить курс
-      </button>
-    </div>
-
-    <!-- Статус -->
-    <p id="add-course-status" class="text-green-600 hidden mt-2">✅ Курс добавлен успешно!</p>
-  </form>
 </div>
-  </div>
-<div x-show="subsection === 'lesson'" class="bg-white p-6 rounded shadow space-y-4">
-  <h2 class="text-xl font-bold text-indigo-700 mb-4">📖 Добавить урок</h2>
-  <!-- Выбор курса -->
-
-
-  <!-- 1. Форма добавления урока -->
-  <form id="add-lesson-form">
-    <div class="mt-4">
-      <label class="block font-medium text-gray-700">Курс</label>
-      <select name="course_title" required class="w-full input border px-4 py-2 rounded mt-1">
-        {% for course in courses %}
-          <option value="{{ course.title }}">{{ course.title }}</option>
-        {% endfor %}
-      </select>
-    </div>
-    <div>
-      <label class="block font-medium text-gray-700">Название урока</label>
-      <input type="text" name="title" required class="w-full input border px-4 py-2 rounded mt-1" placeholder="Например: Основы уверенности">
-    </div>
-
-    <div class="mt-4">
-      <label class="block font-medium text-gray-700">Описание урока</label>
-      <textarea name="description" rows="3" class="w-full input border px-4 py-2 rounded mt-1" placeholder="Краткое описание урока..."></textarea>
-    </div>
-
-    <div class="pt-4">
-      <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700">
-        💾 Добавить урок
-      </button>
-    </div>
-    <p id="add-lesson-status" class="text-green-600 hidden mt-2">✅ Урок добавлен</p>
-  </form>
-
-  <!-- 2. Загрузка CSV-контента к уроку -->
-  <form action="/upload_lesson_content_csv" method="POST" enctype="multipart/form-data" class="mt-6">
-    <div class="mt-4">
-      <label class="block font-medium text-gray-700">Курс</label>
-      <select name="course_title" required class="w-full input border px-4 py-2 rounded mt-1">
-        {% for course in courses %}
-          <option value="{{ course.title }}">{{ course.title }}</option>
-        {% endfor %}
-      </select>
-    </div>
-    <label class="block font-medium text-gray-700 mb-1">📄 CSV с контентом урока</label>
-    <input type="file" name="csv_file" accept=".csv" required class="mb-2">
-    <button type="submit" class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600">💾 Загрузить контент</button>
-  </form>
-  <!-- Загрузка zip с картинками -->
-  <form action="/upload_lesson_images_zip" method="POST" enctype="multipart/form-data" class="mt-6">
-    <div class="mt-4">
-      <label class="block font-medium text-gray-700">Курс</label>
-      <select name="course_id" required class="w-full input border px-4 py-2 rounded mt-1">
-        {% for course in courses %}
-          <option value="{{ course.title }}">{{ course.title }}</option>
-        {% endfor %}
-      </select>
-    </div>
-    <label class="block font-medium text-gray-700 mt-4">🗂 Zip-архив с картинками</label>
-    <input type="file" name="zip_file" accept=".zip" required class="mb-2">
-    <button type="submit" class="bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-600">📥 Загрузить изображения</button>
-  </form>
-
-
-
-</div>
-</div>
-
-
-  <!-- Добавление -->
 
 <script>
-  document.getElementById("add-test-form").addEventListener("submit", function(e) {
-  e.preventDefault();
+    // Данные из Flask
+    const coursesData = {{ courses | tojson }};
 
-  const formData = new FormData(this);
+    // ===== РЕДАКТИРОВАНИЕ ТЕСТА И ВОПРОСОВ =====
+    // ===== РЕДАКТИРОВАНИЕ ТЕСТА И ВОПРОСОВ =====
+    const testSelect = document.getElementById('testSelect');
+    const testEditForm = document.getElementById('testEditForm');
+    const testTitleInput = document.getElementById('testTitleInput');
+    const testDescriptionTextarea = document.getElementById('testDescriptionTextarea');
+    const testIsMainCheckbox = document.getElementById('testIsMainCheckbox');
+    const questionsContainer = document.getElementById('questionsContainer');
+    const questionsList = document.getElementById('questionsList');
 
-  fetch("/upload_test_csv", {
-    method: "POST",
-    body: formData
-  })
-  .then(res => res.ok ? res.text() : Promise.reject("Ошибка загрузки"))
-  .then(() => {
-    document.getElementById("add-test-status").classList.remove("hidden");
-    this.reset();
-  })
-  .catch(err => alert("❌ " + err));
-});
+    let currentTestData = null;
+    let currentQuestions = [];
 
-document.getElementById("add-course-form").addEventListener("submit", function(e) {
-    e.preventDefault();
-    const formData = new FormData(this);
+    function onTestChange() {
+        const testId = testSelect.value;
 
-    fetch("/upload_course", {
-      method: "POST",
-      body: formData
-    })
-    .then(res => res.ok ? res.text() : Promise.reject("Ошибка загрузки курса"))
-    .then(() => {
-      document.getElementById("add-course-status").classList.remove("hidden");
-      this.reset();
-    })
-    .catch(err => alert("❌ " + err));
-  });
+        testEditForm.classList.add('hidden_editor');
+        questionsContainer.classList.add('hidden_editor');
+        questionsList.innerHTML = '';
 
-  document.getElementById("add-lesson-form").addEventListener("submit", function(e) {
-    e.preventDefault();
-    const formData = new FormData(this);
+        if (testId) {
+            // Загружаем данные теста
+            fetch('/get_test_data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ test_id: testId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    currentTestData = data.test;
 
-    fetch("/upload_lesson", {
-      method: "POST",
-      body: formData
-    })
-    .then(res => res.ok ? res.text() : Promise.reject("Ошибка загрузки урока"))
-    .then(() => {
-      document.getElementById("add-lesson-status").classList.remove("hidden");
-      this.reset();
-    })
-    .catch(err => alert("❌ " + err));
-  });
+                    // Заполняем форму теста
+                    testTitleInput.value = currentTestData.title || '';
+                    testDescriptionTextarea.value = currentTestData.description || '';
+                    testIsMainCheckbox.checked = currentTestData.is_main || false;
 
-  document.getElementById("delete-test-form").addEventListener("submit", function(e) {
-  e.preventDefault();
-  const formData = new FormData(this);
+                    testEditForm.classList.remove('hidden_editor');
 
-  fetch("/delete_test", {
-    method: "POST",
-    body: formData
-  })
-  .then(res => res.ok ? res.text() : Promise.reject("Ошибка удаления"))
-  .then(() => {
-    document.getElementById("delete-test-status").classList.remove("hidden");
-    this.reset();
-  })
-  .catch(err => alert("❌ " + err));
-});
+                    // Загружаем вопросы теста
+                    loadTestQuestions(testId);
+                } else {
+                    alert('Ошибка загрузки теста: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                alert('Произошла ошибка при загрузке теста');
+            });
+        }
+    }
 
-  document.getElementById("delete-course-form").addEventListener("submit", function(e) {
-  e.preventDefault();
-  const formData = new FormData(this);
+    function loadTestQuestions(testId) {
+        fetch('/get_test_questions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ test_id: testId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                currentQuestions = data.questions;
+                displayQuestions(currentQuestions);
+                questionsContainer.classList.remove('hidden_editor');
+            } else {
+                alert('Ошибка загрузки вопросов: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            alert('Произошла ошибка при загрузке вопросов');
+        });
+    }
 
-  fetch("/delete_course", {
-    method: "POST",
-    body: formData
-  })
-  .then(res => res.ok ? res.text() : Promise.reject("Ошибка удаления курса"))
-  .then(() => {
-    document.getElementById("delete-course-status").classList.remove("hidden");
-    this.reset();
-  })
-  .catch(err => alert("❌ " + err));
-});
+    function displayQuestions(questions) {
+        questionsList.innerHTML = '';
+
+        questions.forEach((question, index) => {
+            const questionElement = createQuestionElement(question, index);
+            questionsList.appendChild(questionElement);
+        });
+    }
+
+    function createQuestionElement(question, index) {
+    const questionDiv = document.createElement('div');
+    questionDiv.className = 'question-item';
+    questionDiv.innerHTML = `
+<!--        <div class="flex justify-between items-center mb-4">-->
+<!--            <h4 class="font-bold text-lg">Вопрос ${index + 1}</h4>-->
+<!--            <button type="button" onclick="deleteQuestion(${question.id})" class="btn bg-red-500 text-white hover:bg-red-600">-->
+<!--                🗑 Удалить вопрос-->
+<!--            </button>-->
+<!--        </div>-->
+
+        <div class="form-group">
+            <label class="form-label">Текст вопроса</label>
+            <textarea class="form-textarea question-content" placeholder="Введите текст вопроса">${question.content || ''}</textarea>
+        </div>
+
+        <div class="answers-section mt-4">
+            <div class="flex justify-between items-center mb-3">
+                <h5 class="font-bold">Ответы:</h5>
+            </div>
+            <div class="answers-list space-y-2" id="answers-${question.id}">
+                ${question.answers ? question.answers.map(answer => `
+                    <div class="answer-item" data-answer-id="${answer.id}">
+                        <textarea class="form-textarea answer-content w-full" placeholder="Текст ответа">${answer.content || ''}</textarea>
+                    </div>
+                `).join('') : ''}
+            </div>
+        </div>
+
+        <div class="mt-4 flex space-x-2">
+            <button type="button" onclick="saveQuestionChanges(${question.id})" class="btn btn-primary">
+                💾 Сохранить вопрос
+            </button>
+        </div>
+    `;
+
+    return questionDiv;
+}
+
+    function saveTestChanges() {
+        if (!currentTestData) {
+            alert('Не выбран тест для редактирования');
+            return;
+        }
+
+        const newTitle = testTitleInput.value.trim();
+        const newDescription = testDescriptionTextarea.value.trim();
+        const isMain = testIsMainCheckbox.checked;
+
+        if (!newTitle) {
+            alert('Название теста не может быть пустым');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('test_id', currentTestData.id);
+        formData.append('title', newTitle);
+        formData.append('description', newDescription);
+        formData.append('is_main', isMain);
+
+        fetch('/update_test', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Изменения теста сохранены!');
+                // Обновляем отображение в выпадающем списке
+                const option = testSelect.querySelector(`option[value="${currentTestData.id}"]`);
+                if (option) {
+                    option.textContent = newTitle;
+                }
+            } else {
+                alert('Ошибка при сохранении: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            alert('Произошла ошибка при сохранении');
+        });
+    }
+
+    function saveQuestionChanges(questionId) {
+        const questionElement = document.querySelector(`[onclick="saveQuestionChanges(${questionId})"]`).closest('.question-item');
+        const content = questionElement.querySelector('.question-content').value.trim();
+
+        if (!content) {
+            alert('Текст вопроса не может быть пустым');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('question_id', questionId);
+        formData.append('content', content);
+
+        fetch('/update_question', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Сохраняем все ответы для этого вопроса
+                saveAllAnswers(questionId);
+                alert('Вопрос сохранен!');
+            } else {
+                alert('Ошибка при сохранении вопроса: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            alert('Произошла ошибка при сохранении вопроса');
+        });
+    }
+
+    function saveAllAnswers(questionId) {
+        const answersContainer = document.getElementById(`answers-${questionId}`);
+        const answerElements = answersContainer.querySelectorAll('.answer-item');
+
+        const updatePromises = [];
+
+        answerElements.forEach((answerElement, index) => {
+            const content = answerElement.querySelector('.answer-content').value.trim();
+
+            if (!content) {
+                alert('Текст ответа не может быть пустым');
+                return;
+            }
+
+            const answerId = answerElement.getAttribute('data-answer-id');
+
+            if (answerId) {
+                // Обновление существующего ответа
+                const formData = new FormData();
+                formData.append('answer_id', answerId);
+                formData.append('content', content);
+
+                const promise = fetch('/update_answer', {
+                    method: 'POST',
+                    body: formData
+                }).then(response => response.json());
+
+                updatePromises.push(promise);
+            }
+            // Убрали логику добавления новых ответов
+        });
+
+        // Ждем завершения всех запросов
+        Promise.all(updatePromises)
+            .then(results => {
+                results.forEach((result, index) => {
+                    if (!result.success) {
+                        console.error(`Ошибка сохранения ответа ${index}:`, result.error);
+                    }
+                });
+                alert('Все ответы сохранены!');
+            })
+            .catch(error => {
+                console.error('Ошибка при сохранении ответов:', error);
+                alert('Произошла ошибка при сохранении ответов');
+            });
+    }
+
+<!--    function addNewQuestion() {-->
+<!--        if (!currentTestData) {-->
+<!--            alert('Сначала выберите тест');-->
+<!--            return;-->
+<!--        }-->
+
+<!--        const formData = new FormData();-->
+<!--        formData.append('test_id', currentTestData.id);-->
+<!--        formData.append('content', 'Новый вопрос');-->
+
+<!--        fetch('/add_question', {-->
+<!--            method: 'POST',-->
+<!--            body: formData-->
+<!--        })-->
+<!--        .then(response => response.json())-->
+<!--        .then(data => {-->
+<!--            if (data.success) {-->
+<!--                alert('Новый вопрос добавлен!');-->
+<!--                loadTestQuestions(currentTestData.id); // Перезагружаем вопросы-->
+<!--            } else {-->
+<!--                alert('Ошибка при добавлении вопроса: ' + data.error);-->
+<!--            }-->
+<!--        })-->
+<!--        .catch(error => {-->
+<!--            console.error('Ошибка:', error);-->
+<!--            alert('Произошла ошибка при добавлении вопроса');-->
+<!--        });-->
+<!--    }-->
+
+<!--    function addAnswerToQuestion(questionId) {-->
+<!--        const answersContainer = document.getElementById(`answers-${questionId}`);-->
+
+<!--        // Создаем новый элемент ответа-->
+<!--        const newAnswerElement = document.createElement('div');-->
+<!--        newAnswerElement.className = 'answer-item';-->
+<!--        newAnswerElement.innerHTML = `-->
+<!--            <div class="answer-header">-->
+<!--                <button type="button" onclick="this.closest('.answer-item').remove()" class="btn bg-red-500 text-white text-sm hover:bg-red-600">-->
+<!--                    🗑 Удалить ответ-->
+<!--                </button>-->
+<!--            </div>-->
+<!--            <textarea class="form-textarea answer-content w-full" placeholder="Введите текст ответа"></textarea>-->
+<!--        `;-->
+
+<!--        answersContainer.appendChild(newAnswerElement);-->
+
+<!--        // Прокручиваем к новому ответу-->
+<!--        newAnswerElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });-->
+
+<!--        // Фокусируемся на новом поле ввода-->
+<!--        const textarea = newAnswerElement.querySelector('.answer-content');-->
+<!--        textarea.focus();-->
+<!--    }-->
+
+<!--    function deleteQuestion(questionId) {-->
+<!--        if (!confirm('Вы уверены, что хотите удалить этот вопрос?')) {-->
+<!--            return;-->
+<!--        }-->
+
+<!--        const formData = new FormData();-->
+<!--        formData.append('question_id', questionId);-->
+
+<!--        fetch('/delete_question', {-->
+<!--            method: 'POST',-->
+<!--            body: formData-->
+<!--        })-->
+<!--        .then(response => response.json())-->
+<!--        .then(data => {-->
+<!--            if (data.success) {-->
+<!--                alert('Вопрос удален!');-->
+<!--                loadTestQuestions(currentTestData.id); // Перезагружаем вопросы-->
+<!--            } else {-->
+<!--                alert('Ошибка при удалении вопроса: ' + data.error);-->
+<!--            }-->
+<!--        })-->
+<!--        .catch(error => {-->
+<!--            console.error('Ошибка:', error);-->
+<!--            alert('Произошла ошибка при удалении вопроса');-->
+<!--        });-->
+<!--    }-->
+
+<!--    function deleteAnswer(answerId) {-->
+<!--        if (!confirm('Вы уверены, что хотите удалить этот ответ?')) {-->
+<!--            return;-->
+<!--        }-->
+
+<!--        const formData = new FormData();-->
+<!--        formData.append('answer_id', answerId);-->
+
+<!--        fetch('/delete_answer', {-->
+<!--            method: 'POST',-->
+<!--            body: formData-->
+<!--        })-->
+<!--        .then(response => response.json())-->
+<!--        .then(data => {-->
+<!--            if (data.success) {-->
+<!--                alert('Ответ удален!');-->
+<!--                loadTestQuestions(currentTestData.id); // Перезагружаем вопросы-->
+<!--            } else {-->
+<!--                alert('Ошибка при удалении ответа: ' + data.error);-->
+<!--            }-->
+<!--        })-->
+<!--        .catch(error => {-->
+<!--            console.error('Ошибка:', error);-->
+<!--            alert('Произошла ошибка при удалении ответа');-->
+<!--        });-->
+<!--    }-->
+
+
+    // ===== РЕДАКТИРОВАНИЕ КОНТЕНТА =====
+    const courseSelectContent = document.getElementById('courseSelectContent');
+    const lessonSelectContent = document.getElementById('lessonSelectContent');
+    const contentSelectContainer = document.getElementById('contentSelectContainer');
+    const contentSelect = document.getElementById('contentSelect');
+    const editContentForm = document.getElementById('editContentForm');
+    const contentTitleInput = document.getElementById('contentTitleInput');
+    const contentBodyTextarea = document.getElementById('contentBodyTextarea');
+    const allLessonContent = document.getElementById('allLessonContent');
+    const contentItems = document.getElementById('contentItems');
+
+    let currentLessonContent = [];
+    let currentlyEditingContent = null;
+
+    function onCourseChangeContent() {
+        const courseId = courseSelectContent.value;
+
+        lessonSelectContent.innerHTML = '<option value="">-- Выберите урок --</option>';
+        contentSelect.innerHTML = '<option value="">-- Выберите раздел --</option>';
+        hideAllContent();
+
+        if (courseId) {
+            const selectedCourse = coursesData.find(course => course.id == courseId);
+
+            if (selectedCourse && selectedCourse.lessons) {
+                selectedCourse.lessons.forEach(lesson => {
+                    const option = document.createElement('option');
+                    option.value = lesson.id;
+                    option.textContent = lesson.title;
+                    lessonSelectContent.appendChild(option);
+                });
+                lessonSelectContent.disabled = false;
+            }
+        } else {
+            lessonSelectContent.disabled = true;
+            lessonSelectContent.innerHTML = '<option value="">-- Сначала выберите курс --</option>';
+        }
+    }
+
+    function onLessonChangeContent() {
+        const courseId = courseSelectContent.value;
+        const lessonId = lessonSelectContent.value;
+
+        contentSelect.innerHTML = '<option value="">-- Выберите раздел --</option>';
+        hideAllContent();
+
+        if (courseId && lessonId) {
+            const selectedCourse = coursesData.find(course => course.id == courseId);
+            const selectedLesson = selectedCourse.lessons.find(lesson => lesson.id == lessonId);
+
+            currentLessonContent = selectedLesson.content || [];
+
+            if (currentLessonContent.length > 0) {
+                fillContentSelect(currentLessonContent);
+                contentSelectContainer.classList.remove('hidden_editor');
+                showAllContent(currentLessonContent);
+            } else {
+                const noContentMsg = document.createElement('div');
+                noContentMsg.className = 'text-gray-500 italic';
+                noContentMsg.textContent = 'Для этого урока пока нет контента';
+                contentItems.appendChild(noContentMsg);
+                allLessonContent.classList.remove('hidden_editor');
+            }
+        } else {
+            contentSelectContainer.classList.add('hidden_editor');
+        }
+    }
+
+    function onContentChange() {
+        const contentId = contentSelect.value;
+
+        if (contentId) {
+            const selectedContentItem = currentLessonContent.find(item => item.id == contentId);
+            if (selectedContentItem) {
+                loadContentForEditing(selectedContentItem);
+            }
+        } else {
+            editContentForm.classList.add('hidden_editor');
+        }
+    }
+
+    function fillContentSelect(content) {
+        const sortedContent = [...content].sort((a, b) => a.page_num - b.page_num);
+
+        sortedContent.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.id;
+            option.textContent = `${item.title} (стр. ${item.page_num})`;
+            contentSelect.appendChild(option);
+        });
+    }
+
+    function showAllContent(content) {
+        const sortedContent = [...content].sort((a, b) => a.page_num - b.page_num);
+
+        contentItems.innerHTML = '';
+
+        sortedContent.forEach(item => {
+            const contentItem = document.createElement('div');
+            contentItem.className = 'content-item';
+            contentItem.onclick = () => loadContentForEditing(item);
+
+            const title = document.createElement('div');
+            title.className = 'content-title';
+            title.textContent = `${item.title} (стр. ${item.page_num})`;
+
+            const preview = document.createElement('div');
+            preview.className = 'content-preview';
+            preview.textContent = item.content.length > 100 ?
+                item.content.substring(0, 100) + '...' : item.content;
+
+            contentItem.appendChild(title);
+            contentItem.appendChild(preview);
+            contentItems.appendChild(contentItem);
+        });
+
+        allLessonContent.classList.remove('hidden_editor');
+    }
+
+    const contentTypeSelect = document.getElementById('contentTypeSelect');
+
+    function loadContentForEditing(contentItem) {
+        currentlyEditingContent = contentItem;
+
+        contentTypeSelect.value = contentItem.type || 'txt';
+        contentTitleInput.value = contentItem.title || '';
+        contentBodyTextarea.value = contentItem.content || '';
+
+        editContentForm.classList.remove('hidden_editor');
+        editContentForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function saveContentChanges() {
+        if (!currentlyEditingContent) {
+            alert('Не выбран контент для редактирования');
+            return;
+        }
+
+        const newType = contentTypeSelect.value;
+        const newTitle = contentTitleInput.value.trim();
+        const newContent = contentBodyTextarea.value.trim();
+
+        if (!newTitle) {
+            alert('Заголовок контента не может быть пустым');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('content_id', currentlyEditingContent.id);
+        formData.append('type', newType);
+        formData.append('title', newTitle);
+        formData.append('content', newContent);
+
+        fetch('/update_content', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Изменения контента сохранены!');
+
+                // Обновляем данные в интерфейсе
+                currentlyEditingContent.type = newType;
+                currentlyEditingContent.title = newTitle;
+                currentlyEditingContent.content = newContent;
+
+                const option = contentSelect.querySelector(`option[value="${currentlyEditingContent.id}"]`);
+                if (option) {
+                    option.textContent = `${newTitle} (${getContentTypeLabel(newType)}, стр. ${currentlyEditingContent.page_num})`;
+                }
+
+                showAllContent(currentLessonContent);
+            } else {
+                alert('Ошибка при сохранении: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            alert('Произошла ошибка при сохранении');
+        });
+    }
+
+    // Вспомогательная функция для отображения типа контента
+    function getContentTypeLabel(type) {
+        const typeLabels = {
+            'txt': 'Текст',
+            'image': 'Картинка',
+            'video': 'Видео'
+        };
+        return typeLabels[type] || type;
+    }
+
+    function hideAllContent() {
+        editContentForm.classList.add('hidden_editor');
+        allLessonContent.classList.add('hidden_editor');
+        contentSelectContainer.classList.add('hidden_editor');
+        contentItems.innerHTML = '';
+        currentlyEditingContent = null;
+    }
+
+    // Обработчики форм добавления
+    document.getElementById("add-test-form").addEventListener("submit", function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+
+        fetch("/upload_test_csv", {
+            method: "POST",
+            body: formData
+        })
+        .then(res => res.ok ? res.text() : Promise.reject("Ошибка загрузки"))
+        .then(() => {
+            document.getElementById("add-test-status").classList.remove("hidden_editor");
+            this.reset();
+        })
+        .catch(err => alert("❌ " + err));
+    });
+
+    document.getElementById("add-course-form").addEventListener("submit", function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+
+        fetch("/upload_course", {
+            method: "POST",
+            body: formData
+        })
+        .then(res => res.ok ? res.text() : Promise.reject("Ошибка загрузки курса"))
+        .then(() => {
+            document.getElementById("add-course-status").classList.remove("hidden_editor");
+            this.reset();
+        })
+        .catch(err => alert("❌ " + err));
+    });
+
+    document.getElementById("add-lesson-form").addEventListener("submit", function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+
+        fetch("/upload_lesson", {
+            method: "POST",
+            body: formData
+        })
+        .then(res => res.ok ? res.text() : Promise.reject("Ошибка загрузки урока"))
+        .then(() => {
+            document.getElementById("add-lesson-status").classList.remove("hidden_editor");
+            this.reset();
+        })
+        .catch(err => alert("❌ " + err));
+    });
+
+    document.getElementById("delete-test-form").addEventListener("submit", function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+
+        fetch("/delete_test", {
+            method: "POST",
+            body: formData
+        })
+        .then(res => res.ok ? res.text() : Promise.reject("Ошибка удаления"))
+        .then(() => {
+            document.getElementById("delete-test-status").classList.remove("hidden_editor");
+            this.reset();
+        })
+        .catch(err => alert("❌ " + err));
+    });
+
+    document.getElementById("delete-course-form").addEventListener("submit", function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+
+        fetch("/delete_course", {
+            method: "POST",
+            body: formData
+        })
+        .then(res => res.ok ? res.text() : Promise.reject("Ошибка удаления курса"))
+        .then(() => {
+            document.getElementById("delete-course-status").classList.remove("hidden_editor");
+            this.reset();
+        })
+        .catch(err => alert("❌ " + err));
+    });
+
+    // ===== РЕДАКТИРОВАНИЕ КУРСА =====
+    const courseSelectCourse = document.getElementById('courseSelectCourse');
+    const courseEditForm = document.getElementById('courseEditForm');
+    const courseTitleInput = document.getElementById('courseTitleInput');
+    const courseDescriptionTextarea = document.getElementById('courseDescriptionTextarea');
+
+    let currentCourseData = null;
+
+    function onCourseChangeCourse() {
+        const courseId = courseSelectCourse.value;
+        courseEditForm.classList.add('hidden_editor');
+
+        if (courseId) {
+            // Находим курс в данных
+            const selectedCourse = coursesData.find(course => course.id == courseId);
+            if (selectedCourse) {
+                currentCourseData = selectedCourse;
+
+                // Заполняем форму
+                courseTitleInput.value = currentCourseData.title || '';
+                courseDescriptionTextarea.value = currentCourseData.description || '';
+
+                courseEditForm.classList.remove('hidden_editor');
+            }
+        }
+    }
+
+    function saveCourseChanges() {
+        if (!currentCourseData) {
+            alert('Не выбран курс для редактирования');
+            return;
+        }
+
+        const newTitle = courseTitleInput.value.trim();
+        const newDescription = courseDescriptionTextarea.value.trim();
+
+        if (!newTitle) {
+            alert('Название курса не может быть пустым');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('course_id', currentCourseData.id);
+        formData.append('title', newTitle);
+        formData.append('description', newDescription);
+
+        fetch('/update_course', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Изменения курса сохранены!');
+                // Обновляем отображение
+                const option = courseSelectCourse.querySelector(`option[value="${currentCourseData.id}"]`);
+                if (option) {
+                    option.textContent = newTitle;
+                }
+            } else {
+                alert('Ошибка при сохранении: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            alert('Произошла ошибка при сохранении');
+        });
+    }
+
+    // ===== РЕДАКТИРОВАНИЕ УРОКА =====
+    const courseSelectLesson = document.getElementById('courseSelectLesson');
+    const lessonSelectLesson = document.getElementById('lessonSelectLesson');
+    const lessonEditForm = document.getElementById('lessonEditForm');
+    const lessonTitleInput = document.getElementById('lessonTitleInput');
+    const lessonDescriptionTextarea = document.getElementById('lessonDescriptionTextarea');
+
+    let currentLessonData = null;
+
+    function onCourseChangeLesson() {
+        const courseId = courseSelectLesson.value;
+
+        lessonSelectLesson.innerHTML = '<option value="">-- Выберите урок --</option>';
+        lessonEditForm.classList.add('hidden_editor');
+
+        if (courseId) {
+            const selectedCourse = coursesData.find(course => course.id == courseId);
+
+            if (selectedCourse && selectedCourse.lessons) {
+                selectedCourse.lessons.forEach(lesson => {
+                    const option = document.createElement('option');
+                    option.value = lesson.id;
+                    option.textContent = lesson.title;
+                    lessonSelectLesson.appendChild(option);
+                });
+                lessonSelectLesson.disabled = false; // Включаем выбор уроков
+            }
+        } else {
+            lessonSelectLesson.disabled = true;
+            lessonSelectLesson.innerHTML = '<option value="">-- Сначала выберите курс --</option>';
+        }
+    }
+
+    function onLessonSelectLesson() {
+        const lessonId = lessonSelectLesson.value;
+        lessonEditForm.classList.add('hidden_editor');
+
+        if (lessonId) {
+            // Загружаем данные урока
+            fetch('/get_lesson_data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ lesson_id: lessonId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    currentLessonData = data.lesson;
+
+                    lessonTitleInput.value = currentLessonData.title || '';
+                    lessonDescriptionTextarea.value = currentLessonData.description || '';
+
+                    lessonEditForm.classList.remove('hidden_editor');
+                } else {
+                    alert('Ошибка загрузки урока: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                alert('Произошла ошибка при загрузке урока');
+            });
+        }
+    }
+
+    function saveLessonChanges() {
+        if (!currentLessonData) {
+            alert('Не выбран урок для редактирования');
+            return;
+        }
+
+        const newTitle = lessonTitleInput.value.trim();
+        const newDescription = lessonDescriptionTextarea.value.trim();
+
+        if (!newTitle) {
+            alert('Название урока не может быть пустым');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('lesson_id', currentLessonData.id);
+        formData.append('title', newTitle);
+        formData.append('description', newDescription);
+
+        fetch('/update_lesson', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Изменения урока сохранены!');
+                // Обновляем отображение
+                const option = lessonSelectLesson.querySelector(`option[value="${currentLessonData.id}"]`);
+                if (option) {
+                    option.textContent = newTitle;
+                }
+            } else {
+                alert('Ошибка при сохранении: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            alert('Произошла ошибка при сохранении');
+        });
+    }
 
 </script>
 

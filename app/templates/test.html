@@ -4,8 +4,43 @@
 {% block content %}
 <div class="pt-20 px-6 bg-gradient-to-br from-pink-100 to-indigo-100 min-h-screen">
   <div class="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-md">
+    <!-- Кнопка "Назад" -->
+    <div class="mb-4">
+      {% if step > 1 %}
+        <a href="{{ url_for('tests.test_step_back', theme_id=theme_id, step=step) }}"
+           class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition flex items-center inline-block">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+          Назад
+        </a>
+      {% else %}
+        <button disabled class="bg-gray-300 text-gray-500 px-4 py-2 rounded-lg cursor-not-allowed flex items-center">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+          Назад
+        </button>
+      {% endif %}
+    </div>
     <h1 class="text-2xl font-bold mb-4 text-indigo-700">🧪 Вопрос {{ step }}</h1>
     <p class="text-gray-600 mb-8">Выбери наиболее подходящий вариант:</p>
+
+<!--    &lt;!&ndash; Показываем условие вопроса если оно есть &ndash;&gt;-->
+<!--    {% if question.condition %}-->
+<!--      <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">-->
+<!--        <p class="text-sm text-blue-700 font-medium mb-2">📋 Условие вопроса:</p>-->
+<!--        <p class="text-blue-800 font-mono text-sm">{{ question.condition }}</p>-->
+<!--      </div>-->
+<!--    {% endif %}-->
+
+    <!-- Показываем предыдущий ответ если он есть -->
+    {% if previous_answer %}
+      <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+        <p class="text-sm text-green-700 font-medium mb-2">Ваш предыдущий ответ:</p>
+        <p class="text-green-800">{{ previous_answer }}</p>
+      </div>
+    {% endif %}
 
     <h2 class="text-lg font-semibold mb-3">{{ question.text }}</h2>
 

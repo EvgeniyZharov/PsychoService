@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, make_response
 from app.db import db_app
-from app.auth.utils import generate_reset_token, validate_reset_token
+from app.auth.utils import generate_reset_token, validate_reset_token, validate_email
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -10,10 +10,20 @@ def login():
         email = request.form.get('email')
         password = request.form.get('password')
         remember = request.form.get('remember_me')
+
+        if not validate_email(email):
+            return render_template('login.html', error='Неверный формат email адреса')
+
         user = db_app.fetch_one("SELECT * FROM user_profiles WHERE email = %s", (email,))
         if user and user['password'] == password:
-            session['user'] = {"email": email, "name": user["name"]}
-            resp = redirect(url_for('courses.courses', course_id=1))
+            session['user'] = {"email": email, "name": user["name"], "nickname": user.get("nickname", "")}
+            session['user_email'] = email
+            next_url = session.pop('next_url', None)
+            if next_url:
+                resp = redirect(next_url)
+            else:
+                resp = redirect(url_for('courses.courses', course_id=1))
+            # resp = redirect(url_for('courses.courses', course_id=1))
             if remember:
                 resp.set_cookie('remember_email', email, max_age=60*60*24*30)
             return resp
@@ -27,6 +37,9 @@ def login():
 @auth_bp.route('/logout')
 def logout():
     session.pop('user', None)
+    session.pop('user_email', None)  # Очищаем email из сессии
+    session.pop('email_collected', None)  # Очищаем флаг сбора email
+    session.pop('guest_email', None)  # Очищаем гостевой email
     return redirect(url_for('courses.courses', course_id=1))
 
 
@@ -34,12 +47,27 @@ def logout():
 def register():
     if request.method == 'POST':
         name = request.form.get('name')
+        # nickname = request.form.get('name')
         email = request.form.get('email')
         password = request.form.get('password')
+        agree_terms = request.form.get('agree_terms')
 
-        existing = db_app.fetch_one("SELECT * FROM user_profiles WHERE email = %s", (email,))
-        if existing:
-            return render_template('register.html', error="Пользователь уже существует")
+        # Валидация email
+        if not validate_email(email):
+            return render_template('register.html', error="Неверный формат email адреса")
+
+        # Проверяем уникальность email
+        existing_email = db_app.fetch_one("SELECT * FROM user_profiles WHERE email = %s", (email,))
+        if existing_email:
+            return render_template('register.html', error="Пользователь с таким email уже существует")
+
+        # Проверяем уникальность никнейма
+        existing_nickname = db_app.fetch_one("SELECT * FROM user_profiles WHERE nickname = %s", (name,))
+        if existing_nickname:
+            return render_template('register.html', error="Пользователь с таким никнеймом уже существует")
+
+        if not agree_terms:
+            return render_template('register.html', error="Необходимо согласиться с условиями")
 
         db_app.insert("user_profiles", {
             "email": email,
@@ -49,16 +77,32 @@ def register():
         }, returning=False)
 
         session['user'] = {"email": email, "name": name}
-        # return redirect(url_for('courses.course', course_id=1))
-        return redirect(url_for('courses.courses', course_id=1))
+        session['user_email'] = email
 
-    return render_template('register.html')
+        next_url = session.pop('next_url', None)
+        if next_url:
+            return redirect(next_url)
+        else:
+            return redirect(url_for('courses.courses', course_id=1))
+
+        # return redirect(url_for('courses.course', course_id=1))
+    if 'guest_email' in session:
+        email = session["guest_email"]
+    else:
+        email = ""
+
+    return render_template('register.html', email=email)
 
 
 @auth_bp.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():
     if request.method == 'POST':
         email = request.form.get('email')
+
+        # Валидация email
+        if not validate_email(email):
+            return render_template('forgot_password.html', error="Неверный формат email адреса")
+
         user = db_app.fetch_one("SELECT * FROM user_profiles WHERE email = %s", (email,))
         if user:
             token = generate_reset_token(email)

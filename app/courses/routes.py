@@ -33,14 +33,9 @@ def submit_email():
 @courses_bp.route('/course/<int:course_id>')
 def courses(course_id):
     show_email_prompt = 'user' not in session and not session.get('email_collected')
-    # course = db_app.fetch_one("SELECT * FROM main_course WHERE id = %s", (course_id,))
-    # if not course:
-    #     return render_template("fail_course.html")
+
     lessons = db_app.fetch_all("SELECT * FROM levels_course WHERE course_id = %s", (course_id,))
-    # for lesson in lessons:
-    #     result = db_app.fetch_all(
-    #         "SELECT id FROM lessons WHERE course_id = %s ORDER BY id", (lesson['id'],)
-    #     )
+
 
     available_level = 0
     result = None
@@ -70,12 +65,14 @@ def courses(course_id):
         lesson_id = lesson_row["id"] if lesson_row else None
         lesson["lesson_id"] = lesson_id
         steps[lesson["step_index"]][lesson["level_index"]].append(lesson)
+
         if lesson["step_index"] <= available_level:
             lesson["color"] = 'bg-green-500'
             lesson["open"] = "true"
         else:
             lesson["color"] = 'bg-gray-400'
             lesson["open"] = "false"
+
     steps = dict(steps)
     return render_template("course.html",
                            course_id=course_id,
@@ -123,16 +120,18 @@ def end_lesson(course_id):
     Обрабатывает нажатие ссылки для начала курса
     Выполняет необходимые действия и перенаправляет на страницу курса
     """
-    lesson_id = session["course_id"]
-    if db_app.fetch_one("""
-        SELECT 1 FROM user_lesson_completed WHERE user_email = %s AND lesson_id = %s
-    """, (session['user']['email'], course_id)):
-        add_user_points(session['user']['email'], 10, 'course')
-    else:
-        db_app.insert('user_lesson_completed', {
-            "user_email": session['user']['email'],
-            "lesson_id": course_id
-        }, returning=False)
-        add_user_points(session['user']['email'], 30, 'course')
+
+    if 'user' in session:
+        lesson_id = session["course_id"]
+        if db_app.fetch_one("""
+            SELECT 1 FROM user_lesson_completed WHERE user_email = %s AND lesson_id = %s
+        """, (session['user']['email'], course_id)):
+            add_user_points(session['user']['email'], 10, 'course')
+        else:
+            db_app.insert('user_lesson_completed', {
+                "user_email": session['user']['email'],
+                "lesson_id": course_id
+            }, returning=False)
+            add_user_points(session['user']['email'], 30, 'course')
 
     return redirect(url_for('courses.courses', course_id=1))

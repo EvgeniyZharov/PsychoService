@@ -47,6 +47,47 @@
           </span>
         </div>
       </div>
+      {% elif session.email_collected %}
+        <div class="flex flex-col items-center mb-4">
+        <img src="{{ url_for('static', filename=('content/'+user_profile.avatar if user_profile.avatar else 'content/base_avatar.jpg')) }}"
+             alt="avatar"
+             class="w-24 h-24 rounded-full border-4 border-purple-300 shadow">
+        <h3 class="text-xl font-semibold mt-2">Гость</h3>
+        <p class="text-sm text-gray-600">{{ session.guest_email }}</p>
+      </div>
+
+      <div class="text-sm space-y-3 mb-4 text-left">
+        <div class="relative group flex items-center">
+          <strong>🎭 Type:</strong>
+          <span class="ml-1">Тип неопределен</span>
+          <span class="ml-1 text-gray-400 cursor-help relative">
+            ❔
+            <span class="absolute left-1/2 bottom-full mb-2 -translate-x-1/2 hidden group-hover:block bg-white text-gray-800 text-xs rounded px-3 py-2 shadow-lg w-48 z-50">
+              Тип личности, определенный по тесту. Помогает понять ваши сильные стороны.
+            </span>
+          </span>
+        </div>
+        <div class="relative group flex items-center">
+          <strong>🏆 Experience:</strong>
+          <span class="ml-1">Опыта нет</span>
+          <span class="ml-1 text-gray-400 cursor-help relative">
+            ❔
+            <span class="absolute left-1/2 bottom-full mb-2 -translate-x-1/2 hidden group-hover:block bg-white text-gray-800 text-xs rounded px-3 py-2 shadow-lg w-48 z-50">
+              Это количество заработанного Вами опыта. Его можно получать за прохождение курсов и тестов.
+            </span>
+          </span>
+        </div>
+        <div class="relative group flex items-center">
+          <strong>📈 Level:</strong>
+          <span class="ml-1">Уровня нет</span>
+          <span class="ml-1 text-gray-400 cursor-help relative">
+            ❔
+            <span class="absolute left-1/2 bottom-full mb-2 -translate-x-1/2 hidden group-hover:block bg-white text-gray-800 text-xs rounded px-3 py-2 shadow-lg w-48 z-50">
+              Уровень пользователя. Повышается с получением опыта.
+            </span>
+          </span>
+        </div>
+      </div>
       {% else %}
       <div class="flex flex-col items-center mb-4">
         <img src="{{ url_for('static', filename=('content/'+user_profile.avatar if user_profile.avatar else 'content/base_avatar.jpg')) }}"

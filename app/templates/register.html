@@ -7,12 +7,31 @@
   {% if error %}<p class="text-red-500 mb-2">{{ error }}</p>{% endif %}
   <form method="POST" class="space-y-4">
     <input type="text" name="name" placeholder="Имя" required class="w-full p-2 border rounded">
-    <input type="email" name="email" placeholder="Email" required class="w-full p-2 border rounded">
+    <input type="email" name="email" placeholder="Email" value="{{ email }}" required class="w-full p-2 border rounded">
     <input type="password" name="password" placeholder="Пароль" required class="w-full p-2 border rounded">
     <button class="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600 w-full">Создать аккаунт</button>
+    <div class="flex items-start mt-2">
+        <input type="checkbox"
+               id="agree_terms"
+               name="agree_terms"
+               required
+               class="w-4 h-4 text-blue-600 border-gray-300 rounded mt-1">
+        <label for="agree_terms" class="ml-2 text-xs text-gray-700">
+          Необходимо подтвердить согласие с
+          <a href="#"
+             class="text-blue-600 hover:underline modal-link"
+             data-url="{{ url_for("main.terms") }}"
+             data-title="Пользовательское соглашение">Пользовательским соглашением</a>
+          и
+          <a href="#"
+             class="text-blue-600 hover:underline modal-link"
+             data-url="{{ url_for("main.rules") }}"
+             data-title="Правила использования">Правилами использования сервиса</a>
+        </label>
+      </div>
   </form>
 </div>
-<p class="text-xs text-gray-500 mt-6 text-center">
-  Создавая аккаунт, вы соглашаетесь с <a href="{{ url_for('main.terms') }}" class="text-indigo-500 hover:underline">Условиями использования</a>.
-</p>
+<!--<p class="text-xs text-gray-500 mt-6 text-center">-->
+<!--  Создавая аккаунт, вы соглашаетесь с <a href="{{ url_for('main.terms') }}" class="text-indigo-500 hover:underline">Условиями использования</a>.-->
+<!--</p>-->
 {% endblock %}
